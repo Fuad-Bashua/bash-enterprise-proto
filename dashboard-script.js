@@ -6102,3 +6102,737 @@ window.createEmailCampaign = function() {
     // Continue with original function
     return originalCreateEmailCampaign();
 };
+
+// ===================================
+// INTEGRATIONS CONNECTION
+// ===================================
+
+let currentIntegration = null;
+
+// Integration Configuration
+const integrationConfig = {
+    hubspot: {
+        name: 'HubSpot',
+        subtitle: 'Connect your HubSpot CRM',
+        features: [
+            'Sync contacts and leads automatically',
+            'Track email campaigns in HubSpot',
+            'Create deals from qualified leads',
+            'Update contact properties',
+            'Trigger workflows based on events'
+        ],
+        fields: [
+            { type: 'text', id: 'apiKey', label: 'API Key', placeholder: 'pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', required: true, secret: true },
+            { type: 'select', id: 'syncDirection', label: 'Sync Direction', options: ['Bashua → HubSpot', 'HubSpot → Bashua', 'Bi-directional'], required: true }
+        ],
+        instructions: {
+            title: 'How to get your HubSpot API Key:',
+            steps: [
+                'Log in to your HubSpot account',
+                'Go to Settings → Integrations → Private Apps',
+                'Click "Create a private app"',
+                'Give it a name and select required scopes',
+                'Copy the API key'
+            ]
+        }
+    },
+    salesforce: {
+        name: 'Salesforce',
+        subtitle: 'Connect your Salesforce CRM',
+        features: [
+            'Sync leads and opportunities',
+            'Update Salesforce records in real-time',
+            'Create tasks and events',
+            'Track campaign performance',
+            'Custom field mapping'
+        ],
+        fields: [
+            { type: 'text', id: 'instanceUrl', label: 'Instance URL', placeholder: 'https://yourinstance.salesforce.com', required: true },
+            { type: 'text', id: 'clientId', label: 'Consumer Key', placeholder: 'Your connected app consumer key', required: true },
+            { type: 'text', id: 'clientSecret', label: 'Consumer Secret', placeholder: 'Your connected app consumer secret', required: true, secret: true }
+        ],
+        instructions: {
+            title: 'How to set up Salesforce connection:',
+            steps: [
+                'Log in to Salesforce Setup',
+                'Go to Apps → App Manager → New Connected App',
+                'Enable OAuth Settings',
+                'Add callback URL: https://bashua.com/oauth/callback',
+                'Copy Consumer Key and Secret'
+            ]
+        }
+    },
+    zapier: {
+        name: 'Zapier',
+        subtitle: 'Connect 5000+ apps',
+        features: [
+            'Create Zaps with any trigger',
+            'Send data to 5000+ apps',
+            'Multi-step workflows',
+            'Filters and conditions',
+            'Automatic retries'
+        ],
+        fields: [
+            { type: 'text', id: 'webhookUrl', label: 'Webhook URL', placeholder: 'https://hooks.zapier.com/hooks/catch/...', required: true },
+            { type: 'checkboxes', id: 'triggers', label: 'Select Triggers', options: ['New Lead', 'Campaign Sent', 'Email Opened', 'Link Clicked', 'Form Submitted'] }
+        ],
+        instructions: {
+            title: 'How to connect Zapier:',
+            steps: [
+                'Log in to your Zapier account',
+                'Create a new Zap',
+                'Choose "Webhooks by Zapier" as trigger',
+                'Select "Catch Hook"',
+                'Copy the webhook URL provided',
+                'Paste it here and select which events to send'
+            ]
+        }
+    },
+    'google-analytics': {
+        name: 'Google Analytics',
+        subtitle: 'Track campaign performance',
+        features: [
+            'Track email campaign clicks',
+            'Monitor conversion rates',
+            'View traffic sources',
+            'Custom event tracking',
+            'Real-time analytics'
+        ],
+        fields: [
+            { type: 'text', id: 'trackingId', label: 'Tracking ID', placeholder: 'UA-XXXXXXXXX-X or G-XXXXXXXXXX', required: true },
+            { type: 'text', id: 'propertyId', label: 'Property ID (GA4)', placeholder: 'G-XXXXXXXXXX', required: false },
+            { type: 'checkbox', id: 'trackCampaigns', label: 'Automatically track email campaigns', checked: true }
+        ],
+        instructions: {
+            title: 'How to find your Google Analytics ID:',
+            steps: [
+                'Log in to Google Analytics',
+                'Go to Admin (gear icon)',
+                'Select your Property',
+                'Go to Property Settings',
+                'Copy the Tracking ID or Measurement ID'
+            ]
+        }
+    },
+    stripe: {
+        name: 'Stripe',
+        subtitle: 'Accept payments & manage billing',
+        features: [
+            'Process payments automatically',
+            'Track subscription revenue',
+            'Manage customer billing',
+            'Webhook notifications',
+            'Invoice generation'
+        ],
+        fields: [
+            { type: 'text', id: 'publishableKey', label: 'Publishable Key', placeholder: 'pk_live_...', required: true },
+            { type: 'text', id: 'secretKey', label: 'Secret Key', placeholder: 'sk_live_...', required: true, secret: true },
+            { type: 'select', id: 'environment', label: 'Environment', options: ['Test Mode', 'Live Mode'], required: true }
+        ],
+        instructions: {
+            title: 'How to get your Stripe API keys:',
+            steps: [
+                'Log in to your Stripe Dashboard',
+                'Go to Developers → API Keys',
+                'Copy your Publishable key and Secret key',
+                'Use Test keys for testing, Live keys for production',
+                'Never share your Secret key publicly'
+            ]
+        }
+    },
+    teams: {
+        name: 'Microsoft Teams',
+        subtitle: 'Send notifications to your team',
+        features: [
+            'Real-time campaign notifications',
+            'Lead alerts to channels',
+            'Daily summary reports',
+            'Custom message formatting',
+            'Mention team members'
+        ],
+        fields: [
+            { type: 'text', id: 'webhookUrl', label: 'Incoming Webhook URL', placeholder: 'https://outlook.office.com/webhook/...', required: true },
+            { type: 'text', id: 'channelName', label: 'Channel Name', placeholder: 'Marketing', required: false },
+            { type: 'checkboxes', id: 'notifications', label: 'Notify on', options: ['New Lead', 'Campaign Sent', 'Goal Achieved', 'Error Occurred'] }
+        ],
+        instructions: {
+            title: 'How to create a Teams webhook:',
+            steps: [
+                'Open Microsoft Teams',
+                'Go to the channel where you want notifications',
+                'Click ••• → Connectors',
+                'Find "Incoming Webhook" and click Configure',
+                'Give it a name and upload an icon (optional)',
+                'Copy the webhook URL'
+            ]
+        }
+    }
+};
+
+// Open Connection Modal
+window.connectIntegration = function(integrationId) {
+    const config = integrationConfig[integrationId];
+    if (!config) return;
+    
+    currentIntegration = integrationId;
+    
+    // Update modal title
+    document.getElementById('connectionModalTitle').textContent = `Connect to ${config.name}`;
+    document.getElementById('connectionModalSubtitle').textContent = config.subtitle;
+    
+    // Build form content
+    const formContent = document.getElementById('connectionFormContent');
+    formContent.innerHTML = `
+        <!-- Features -->
+        <div class="connection-feature-list">
+            <h4>What you can do:</h4>
+            <ul>
+                ${config.features.map(feature => `<li>${feature}</li>`).join('')}
+            </ul>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="connection-instructions">
+            <h4>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                ${config.instructions.title}
+            </h4>
+            <ol>
+                ${config.instructions.steps.map(step => `<li>${step}</li>`).join('')}
+            </ol>
+        </div>
+        
+        <!-- Connection Fields -->
+        ${config.fields.map((field, index) => renderConnectionField(field, index)).join('')}
+    `;
+    
+    // Open modal
+    document.getElementById('connectIntegrationModal').classList.add('active');
+};
+
+function renderConnectionField(field, index) {
+    if (field.type === 'text') {
+        return `
+            <div class="connection-step">
+                <label class="form-label">
+                    ${field.label}
+                    ${field.required ? '<span class="required">*</span>' : ''}
+                </label>
+                ${field.secret ? `
+                    <div class="api-key-input-group">
+                        <input type="password" class="form-input" id="${field.id}" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>
+                        <button type="button" class="toggle-visibility-btn" onclick="togglePasswordVisibility('${field.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                ` : `
+                    <input type="text" class="form-input" id="${field.id}" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>
+                `}
+            </div>
+        `;
+    } else if (field.type === 'select') {
+        return `
+            <div class="connection-step">
+                <label class="form-label">
+                    ${field.label}
+                    ${field.required ? '<span class="required">*</span>' : ''}
+                </label>
+                <select class="form-input" id="${field.id}" ${field.required ? 'required' : ''}>
+                    <option value="">Select...</option>
+                    ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                </select>
+            </div>
+        `;
+    } else if (field.type === 'checkbox') {
+        return `
+            <div class="connection-step">
+                <label class="checkbox-option">
+                    <input type="checkbox" id="${field.id}" ${field.checked ? 'checked' : ''}>
+                    <span class="checkbox-label">${field.label}</span>
+                </label>
+            </div>
+        `;
+    } else if (field.type === 'checkboxes') {
+        return `
+            <div class="connection-step">
+                <div class="connection-step-title">${field.label}</div>
+                <div class="permissions-list">
+                    ${field.options.map((opt, i) => `
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="${field.id}_${i}" value="${opt}">
+                            <span class="checkbox-label">${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    return '';
+}
+
+window.closeConnectionModal = function() {
+    document.getElementById('connectIntegrationModal').classList.remove('active');
+    currentIntegration = null;
+};
+
+window.togglePasswordVisibility = function(fieldId) {
+    const input = document.getElementById(fieldId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+};
+
+window.confirmConnection = function() {
+    if (!currentIntegration) return;
+    
+    const config = integrationConfig[currentIntegration];
+    
+    // Collect form data
+    const formData = {};
+    let valid = true;
+    
+    config.fields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (element) {
+            if (field.required && !element.value) {
+                valid = false;
+                element.style.borderColor = 'var(--error)';
+            } else {
+                formData[field.id] = element.value;
+                element.style.borderColor = '';
+            }
+        }
+    });
+    
+    if (!valid) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    // Simulate connection
+    showToast('Connecting to ' + config.name + '...', 'info');
+    
+    setTimeout(() => {
+        showToast(`Successfully connected to ${config.name}!`, 'success');
+        console.log('Connected integration:', currentIntegration, formData);
+        closeConnectionModal();
+        
+        // In production:
+        // POST /api/integrations/connect
+        // { platform: currentIntegration, ...formData }
+    }, 1500);
+};
+
+// ===================================
+// BROWSE INTEGRATIONS, API KEYS, WEBHOOKS
+// ===================================
+
+// All Available Integrations (20+)
+const allIntegrations = [
+    // Already listed
+    { id: 'hubspot', name: 'HubSpot', category: 'crm', description: 'CRM & marketing automation', connected: false },
+    { id: 'salesforce', name: 'Salesforce', category: 'crm', description: 'Enterprise CRM platform', connected: false },
+    { id: 'zapier', name: 'Zapier', category: 'productivity', description: 'Connect 5000+ apps', connected: false },
+    { id: 'google-analytics', name: 'Google Analytics', category: 'analytics', description: 'Website analytics', connected: false },
+    { id: 'stripe', name: 'Stripe', category: 'productivity', description: 'Payment processing', connected: false },
+    { id: 'teams', name: 'Microsoft Teams', category: 'communication', description: 'Team collaboration', connected: false },
+    // Additional
+    { id: 'slack', name: 'Slack', category: 'communication', description: 'Team messaging', connected: true },
+    { id: 'gmail', name: 'Gmail', category: 'communication', description: 'Email integration', connected: true },
+    { id: 'linkedin', name: 'LinkedIn', category: 'communication', description: 'Social media', connected: true },
+    { id: 'pipedrive', name: 'Pipedrive', category: 'crm', description: 'Sales CRM', connected: false },
+    { id: 'monday', name: 'Monday.com', category: 'productivity', description: 'Work management', connected: false },
+    { id: 'asana', name: 'Asana', category: 'productivity', description: 'Project management', connected: false },
+    { id: 'trello', name: 'Trello', category: 'productivity', description: 'Task boards', connected: false },
+    { id: 'intercom', name: 'Intercom', category: 'communication', description: 'Customer messaging', connected: false },
+    { id: 'zendesk', name: 'Zendesk', category: 'communication', description: 'Customer support', connected: false },
+    { id: 'mixpanel', name: 'Mixpanel', category: 'analytics', description: 'Product analytics', connected: false },
+    { id: 'segment', name: 'Segment', category: 'analytics', description: 'Customer data platform', connected: false },
+    { id: 'amplitude', name: 'Amplitude', category: 'analytics', description: 'Product intelligence', connected: false },
+    { id: 'zoho', name: 'Zoho CRM', category: 'crm', description: 'Business CRM', connected: false },
+    { id: 'freshworks', name: 'Freshworks', category: 'crm', description: 'Customer engagement', connected: false },
+    { id: 'mailchimp', name: 'Mailchimp', category: 'communication', description: 'Email marketing', connected: false },
+    { id: 'sendgrid', name: 'SendGrid', category: 'communication', description: 'Email delivery', connected: false }
+];
+
+// Browse Integrations
+window.openBrowseIntegrations = function() {
+    renderBrowseIntegrations('all');
+    document.getElementById('browseIntegrationsModal').classList.add('active');
+};
+
+window.closeBrowseIntegrations = function() {
+    document.getElementById('browseIntegrationsModal').classList.remove('active');
+};
+
+function renderBrowseIntegrations(category = 'all', searchTerm = '') {
+    const grid = document.getElementById('browseIntegrationsGrid');
+    
+    let filtered = category === 'all' 
+        ? allIntegrations 
+        : allIntegrations.filter(i => i.category === category);
+    
+    if (searchTerm) {
+        filtered = filtered.filter(i => 
+            i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            i.description.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <h4>No integrations found</h4>
+                <p>Try adjusting your search or filters</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = filtered.map(integration => `
+        <div class="integration-card ${integration.connected ? 'connected' : 'available'}" data-category="${integration.category}">
+            <div class="integration-status-badge ${integration.connected ? 'connected' : 'available'}">
+                ${integration.connected ? `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Connected
+                ` : 'Available'}
+            </div>
+            <div class="integration-icon ${integration.id}">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            </div>
+            <div class="integration-info">
+                <h4 class="integration-name">${integration.name}</h4>
+                <p class="integration-description">${integration.description}</p>
+            </div>
+            ${integration.connected ? `
+                <button class="btn-connect connected" disabled>Connected</button>
+            ` : `
+                <button class="btn-connect" onclick="connectIntegration('${integration.id}')">Connect</button>
+            `}
+        </div>
+    `).join('');
+}
+
+window.filterByCategory = function(category) {
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const searchTerm = document.getElementById('integrationSearchInput').value;
+    renderBrowseIntegrations(category, searchTerm);
+};
+
+window.filterIntegrations = function() {
+    const searchTerm = document.getElementById('integrationSearchInput').value;
+    const activeCategory = document.querySelector('.filter-chip.active').dataset.filter;
+    renderBrowseIntegrations(activeCategory, searchTerm);
+};
+
+// API Keys Management
+let apiKeys = [
+    {
+        id: 1,
+        name: 'Production API Key',
+        key: 'bsh_live_a8f2k9d0x7c4m5n1p3q6r8t2v4w7y9z1',
+        description: 'Main production key',
+        permissions: ['read', 'write'],
+        created: '2024-11-15',
+        lastUsed: '2024-12-26'
+    },
+    {
+        id: 2,
+        name: 'Development Key',
+        key: 'bsh_test_k3n5p8q2r4s7t9u1v4w6x8y0z2a3c5d7',
+        description: 'Testing and development',
+        permissions: ['read'],
+        created: '2024-12-01',
+        lastUsed: '2024-12-20'
+    }
+];
+
+window.openApiKeys = function() {
+    renderApiKeys();
+    document.getElementById('apiKeysModal').classList.add('active');
+};
+
+window.closeApiKeys = function() {
+    document.getElementById('apiKeysModal').classList.remove('active');
+};
+
+function renderApiKeys() {
+    const list = document.getElementById('apiKeysList');
+    
+    if (apiKeys.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                </svg>
+                <h4>No API keys yet</h4>
+                <p>Create your first API key to get started</p>
+            </div>
+        `;
+        return;
+    }
+    
+    list.innerHTML = apiKeys.map(key => `
+        <div class="api-key-item">
+            <div class="api-key-info">
+                <div class="api-key-name">${key.name}</div>
+                <div class="api-key-details">
+                    <span class="api-key-value">${key.key.substring(0, 20)}••••••••</span>
+                    <span>Created ${key.created}</span>
+                    <span>Last used ${key.lastUsed}</span>
+                </div>
+            </div>
+            <div class="api-key-actions">
+                <button class="btn-icon-small" onclick="copyApiKey('${key.key}')" title="Copy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <button class="btn-icon-small danger" onclick="deleteApiKey(${key.id})" title="Delete">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.createApiKey = function() {
+    document.getElementById('createApiKeyModal').classList.add('active');
+};
+
+window.closeCreateApiKey = function() {
+    document.getElementById('createApiKeyModal').classList.remove('active');
+};
+
+window.generateApiKey = function() {
+    const name = document.getElementById('apiKeyName').value.trim();
+    
+    if (!name) {
+        showToast('Please enter a key name', 'error');
+        return;
+    }
+    
+    const description = document.getElementById('apiKeyDescription').value.trim();
+    const permissions = [];
+    if (document.getElementById('perm_read').checked) permissions.push('read');
+    if (document.getElementById('perm_write').checked) permissions.push('write');
+    if (document.getElementById('perm_delete').checked) permissions.push('delete');
+    
+    // Generate random API key
+    const prefix = 'bsh_live_';
+    const randomKey = prefix + Array.from({length: 32}, () => 
+        'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]
+    ).join('');
+    
+    const newKey = {
+        id: apiKeys.length + 1,
+        name,
+        key: randomKey,
+        description,
+        permissions,
+        created: new Date().toISOString().split('T')[0],
+        lastUsed: 'Never'
+    };
+    
+    apiKeys.push(newKey);
+    
+    closeCreateApiKey();
+    renderApiKeys();
+    
+    showToast('API key created successfully!', 'success');
+    console.log('New API key:', newKey);
+    
+    // In production:
+    // POST /api/keys
+    // { name, description, permissions }
+};
+
+window.copyApiKey = function(key) {
+    navigator.clipboard.writeText(key).then(() => {
+        showToast('API key copied to clipboard!', 'success');
+    }).catch(() => {
+        showToast('Failed to copy API key', 'error');
+    });
+};
+
+window.deleteApiKey = function(keyId) {
+    if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+        return;
+    }
+    
+    apiKeys = apiKeys.filter(k => k.id !== keyId);
+    renderApiKeys();
+    showToast('API key deleted', 'success');
+    
+    // In production:
+    // DELETE /api/keys/:id
+};
+
+// Webhooks Management
+let webhooks = [
+    {
+        id: 1,
+        url: 'https://api.example.com/webhooks/new-lead',
+        description: 'Send new leads to CRM',
+        events: ['lead.created'],
+        status: 'active',
+        created: '2024-12-15',
+        lastTriggered: '2024-12-26 10:30'
+    },
+    {
+        id: 2,
+        url: 'https://hooks.zapier.com/12345/catch',
+        description: 'Zapier workflow trigger',
+        events: ['campaign.sent', 'email.opened'],
+        status: 'active',
+        created: '2024-12-10',
+        lastTriggered: '2024-12-26 09:15'
+    }
+];
+
+window.createWebhook = function() {
+    document.getElementById('createWebhookModal').classList.add('active');
+};
+
+window.closeCreateWebhook = function() {
+    document.getElementById('createWebhookModal').classList.remove('active');
+};
+
+window.saveWebhook = function() {
+    const url = document.getElementById('webhookUrl').value.trim();
+    
+    if (!url) {
+        showToast('Please enter a webhook URL', 'error');
+        return;
+    }
+    
+    const description = document.getElementById('webhookDescription').value.trim();
+    const events = [];
+    if (document.getElementById('event_lead').checked) events.push('lead.created');
+    if (document.getElementById('event_campaign').checked) events.push('campaign.sent');
+    if (document.getElementById('event_email').checked) events.push('email.opened');
+    if (document.getElementById('event_click').checked) events.push('link.clicked');
+    
+    const newWebhook = {
+        id: webhooks.length + 1,
+        url,
+        description,
+        events,
+        status: 'active',
+        created: new Date().toISOString().split('T')[0],
+        lastTriggered: 'Never'
+    };
+    
+    webhooks.push(newWebhook);
+    
+    closeCreateWebhook();
+    showToast('Webhook created successfully!', 'success');
+    console.log('New webhook:', newWebhook);
+    
+    // Update webhooks list in page (if visible)
+    updateWebhooksList();
+    
+    // In production:
+    // POST /api/webhooks
+    // { url, description, events }
+};
+
+function updateWebhooksList() {
+    const webhooksList = document.querySelector('.webhooks-list');
+    if (!webhooksList) return;
+    
+    webhooksList.innerHTML = webhooks.map(webhook => `
+        <div class="webhook-item">
+            <div class="webhook-info">
+                <div class="webhook-url">${webhook.url}</div>
+                <div class="webhook-meta">
+                    <span class="webhook-status active">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                        Active
+                    </span>
+                    <span>Events: ${webhook.events.length}</span>
+                    <span>Last triggered ${webhook.lastTriggered}</span>
+                </div>
+            </div>
+            <div class="webhook-actions">
+                <button class="btn-icon-small" onclick="testWebhook(${webhook.id})" title="Test">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </button>
+                <button class="btn-icon-small danger" onclick="deleteWebhook(${webhook.id})" title="Delete">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.testWebhook = function(webhookId) {
+    const webhook = webhooks.find(w => w.id === webhookId);
+    if (!webhook) return;
+    
+    showToast('Sending test webhook...', 'info');
+    
+    setTimeout(() => {
+        showToast('Test webhook sent successfully!', 'success');
+        webhook.lastTriggered = new Date().toLocaleString();
+        updateWebhooksList();
+        
+        // In production:
+        // POST /api/webhooks/:id/test
+    }, 1000);
+};
+
+window.deleteWebhook = function(webhookId) {
+    if (!confirm('Delete this webhook?')) return;
+    
+    webhooks = webhooks.filter(w => w.id !== webhookId);
+    updateWebhooksList();
+    showToast('Webhook deleted', 'success');
+    
+    // In production:
+    // DELETE /api/webhooks/:id
+};
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const browseBtn = document.getElementById('browseIntegrationsBtn');
+    if (browseBtn) {
+        browseBtn.addEventListener('click', openBrowseIntegrations);
+    }
+    
+    const apiKeysBtn = document.getElementById('viewApiKeysBtn');
+    if (apiKeysBtn) {
+        apiKeysBtn.addEventListener('click', openApiKeys);
+    }
+    
+    // Initialize webhooks list on page load
+    updateWebhooksList();
+});

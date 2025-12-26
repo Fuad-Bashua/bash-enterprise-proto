@@ -7513,3 +7513,443 @@ input:checked + .toggle-slider:before {
     background: rgba(107, 114, 128, 0.1);
     color: var(--text-muted);
 }
+
+/* ===================================
+   INTEGRATIONS CONNECTION
+   =================================== */
+
+/* Integration Icons Colors */
+.integration-icon.hubspot {
+    background: linear-gradient(135deg, #FF7A59 0%, #FF5C35 100%);
+}
+
+.integration-icon.salesforce {
+    background: linear-gradient(135deg, #00A1E0 0%, #0176D3 100%);
+}
+
+.integration-icon.zapier {
+    background: linear-gradient(135deg, #FF4A00 0%, #FF3D00 100%);
+}
+
+.integration-icon.google-analytics {
+    background: linear-gradient(135deg, #F9AB00 0%, #F57C00 100%);
+}
+
+.integration-icon.stripe {
+    background: linear-gradient(135deg, #635BFF 0%, #5469D4 100%);
+}
+
+.integration-icon.teams {
+    background: linear-gradient(135deg, #5B5FC7 0%, #464EB8 100%);
+}
+
+/* Connection Form */
+.connection-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.connection-feature-list {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.connection-feature-list h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.connection-feature-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.connection-feature-list li {
+    padding: 8px 0;
+    display: flex;
+    align-items: start;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.connection-feature-list li::before {
+    content: '✓';
+    color: var(--success);
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.connection-instructions {
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.connection-instructions h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--info);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.connection-instructions h4 svg {
+    width: 18px;
+    height: 18px;
+}
+
+.connection-instructions p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.connection-instructions ol {
+    margin: 12px 0 0 0;
+    padding-left: 20px;
+}
+
+.connection-instructions li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.connection-step {
+    margin-bottom: 20px;
+}
+
+.connection-step:last-child {
+    margin-bottom: 0;
+}
+
+.connection-step-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+/* API Key Input */
+.api-key-input-group {
+    position: relative;
+}
+
+.api-key-input-group input {
+    padding-right: 40px;
+    font-family: monospace;
+}
+
+.toggle-visibility-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+}
+
+.toggle-visibility-btn:hover {
+    color: var(--text-primary);
+}
+
+.toggle-visibility-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Permission Checkboxes */
+.permissions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.permissions-list .checkbox-option {
+    padding-left: 0;
+}
+
+/* ===================================
+   BROWSE INTEGRATIONS, API KEYS, WEBHOOKS
+   =================================== */
+
+/* Browse Integrations Header */
+.browse-integrations-header {
+    padding: 20px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.search-bar-large {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    transition: all var(--transition-fast);
+}
+
+.search-bar-large:focus-within {
+    border-color: var(--brown);
+}
+
+.search-bar-large svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+}
+
+.search-bar-large input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.search-bar-large input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Browse Filters */
+.browse-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-chip {
+    padding: 8px 16px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.filter-chip:hover {
+    border-color: var(--brown);
+    color: var(--brown);
+}
+
+.filter-chip.active {
+    background: var(--brown);
+    border-color: var(--brown);
+    color: white;
+}
+
+/* API Keys List */
+.api-keys-info {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.api-keys-info svg {
+    width: 24px;
+    height: 24px;
+    color: var(--info);
+    flex-shrink: 0;
+}
+
+.api-keys-info strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.api-keys-info p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.api-keys-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.api-key-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    transition: all var(--transition-fast);
+}
+
+.api-key-item:hover {
+    border-color: var(--brown);
+}
+
+.api-key-info {
+    flex: 1;
+}
+
+.api-key-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.api-key-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.api-key-value {
+    font-family: monospace;
+    padding: 6px 10px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.api-key-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon-small {
+    padding: 6px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-icon-small:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.btn-icon-small.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+}
+
+.btn-icon-small svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Webhook Item */
+.webhook-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all var(--transition-fast);
+}
+
+.webhook-item:hover {
+    border-color: var(--brown);
+}
+
+.webhook-info {
+    flex: 1;
+}
+
+.webhook-url {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.webhook-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.webhook-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.webhook-status.active {
+    color: var(--success);
+}
+
+.webhook-status svg {
+    width: 12px;
+    height: 12px;
+}
+
+.webhook-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state svg {
+    width: 64px;
+    height: 64px;
+    color: var(--text-muted);
+    opacity: 0.5;
+    margin-bottom: 16px;
+}
+
+.empty-state h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}

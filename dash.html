@@ -5219,6 +5219,229 @@ Your Team"></textarea>
                     </div>
                 </div>
 
+                <!-- Integration Connection Modals -->
+                <div class="modal-overlay" id="connect IntegrationModal">
+                    <div class="modal-container modal-medium">
+                        <div class="modal-header">
+                            <div>
+                                <h3 id="connectionModalTitle">Connect to Integration</h3>
+                                <p id="connectionModalSubtitle" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;"></p>
+                            </div>
+                            <button class="modal-close" onclick="closeConnectionModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="connection-form" id="connectionFormContent">
+                                <!-- Dynamic content will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeConnectionModal()">Cancel</button>
+                            <button class="btn-solid" id="confirmConnectionBtn" onclick="confirmConnection()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                <span id="connectionButtonText">Connect</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Browse All Integrations Modal -->
+                <div class="modal-overlay" id="browseIntegrationsModal">
+                    <div class="modal-container modal-xlarge">
+                        <div class="modal-header">
+                            <h3>Browse Integrations</h3>
+                            <button class="modal-close" onclick="closeBrowseIntegrations()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Search & Filters -->
+                        <div class="browse-integrations-header">
+                            <div class="search-bar-large">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                <input type="text" placeholder="Search integrations..." id="integrationSearchInput" oninput="filterIntegrations()">
+                            </div>
+                            <div class="browse-filters">
+                                <button class="filter-chip active" data-filter="all" onclick="filterByCategory('all')">All (20+)</button>
+                                <button class="filter-chip" data-filter="crm" onclick="filterByCategory('crm')">CRM (6)</button>
+                                <button class="filter-chip" data-filter="communication" onclick="filterByCategory('communication')">Communication (8)</button>
+                                <button class="filter-chip" data-filter="analytics" onclick="filterByCategory('analytics')">Analytics (4)</button>
+                                <button class="filter-chip" data-filter="productivity" onclick="filterByCategory('productivity')">Productivity (5)</button>
+                            </div>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="integrations-grid" id="browseIntegrationsGrid">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Keys Modal -->
+                <div class="modal-overlay" id="apiKeysModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>API Keys</h3>
+                            <button class="modal-close" onclick="closeApiKeys()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="api-keys-info">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                <div>
+                                    <strong>Keep your API keys secure</strong>
+                                    <p>Never share your API keys publicly or commit them to version control</p>
+                                </div>
+                            </div>
+
+                            <div class="api-keys-list" id="apiKeysList">
+                                <!-- API keys will be populated here -->
+                            </div>
+
+                            <button class="btn-outline" onclick="createApiKey()" style="margin-top: 16px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Create New API Key
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create API Key Modal -->
+                <div class="modal-overlay" id="createApiKeyModal">
+                    <div class="modal-container modal-medium">
+                        <div class="modal-header">
+                            <h3>Create API Key</h3>
+                            <button class="modal-close" onclick="closeCreateApiKey()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label class="form-label">Key Name <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="apiKeyName" placeholder="Production API Key">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-textarea" id="apiKeyDescription" rows="3" placeholder="What will this key be used for?"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Permissions</label>
+                                    <div class="permissions-list">
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="perm_read" checked>
+                                            <span class="checkbox-label">Read access</span>
+                                        </label>
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="perm_write">
+                                            <span class="checkbox-label">Write access</span>
+                                        </label>
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="perm_delete">
+                                            <span class="checkbox-label">Delete access</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeCreateApiKey()">Cancel</button>
+                            <button class="btn-solid" onclick="generateApiKey()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                                </svg>
+                                Generate Key
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Webhook Modal -->
+                <div class="modal-overlay" id="createWebhookModal">
+                    <div class="modal-container modal-medium">
+                        <div class="modal-header">
+                            <h3>Create Webhook</h3>
+                            <button class="modal-close" onclick="closeCreateWebhook()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-section">
+                                <div class="form-group">
+                                    <label class="form-label">Webhook URL <span class="required">*</span></label>
+                                    <input type="url" class="form-input" id="webhookUrl" placeholder="https://api.example.com/webhooks">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" class="form-input" id="webhookDescription" placeholder="What is this webhook for?">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Events to Send</label>
+                                    <div class="permissions-list">
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="event_lead" checked>
+                                            <span class="checkbox-label">New Lead Created</span>
+                                        </label>
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="event_campaign">
+                                            <span class="checkbox-label">Campaign Sent</span>
+                                        </label>
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="event_email">
+                                            <span class="checkbox-label">Email Opened</span>
+                                        </label>
+                                        <label class="checkbox-option">
+                                            <input type="checkbox" id="event_click">
+                                            <span class="checkbox-label">Link Clicked</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeCreateWebhook()">Cancel</button>
+                            <button class="btn-solid" onclick="saveWebhook()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Create Webhook
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="page-content" id="settings-content">
                     <!-- Page Header -->
                     <div class="page-header">
