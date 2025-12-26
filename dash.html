@@ -538,6 +538,108 @@
                     </div>
                 </div>
 
+                <!-- Content Library Modal -->
+                <div class="modal-overlay" id="contentLibraryModal">
+                    <div class="modal-container modal-xlarge">
+                        <div class="modal-header">
+                            <h3>Content Library</h3>
+                            <button class="modal-close" onclick="closeContentLibrary()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Library Filters -->
+                        <div class="library-filters">
+                            <div class="filter-group">
+                                <label>Content Type</label>
+                                <select class="filter-select" id="libraryTypeFilter">
+                                    <option value="all">All Types</option>
+                                    <option value="linkedin">LinkedIn Post</option>
+                                    <option value="email">Email</option>
+                                    <option value="blog">Blog Post</option>
+                                    <option value="twitter">Twitter/X Post</option>
+                                    <option value="ad">Ad Copy</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Sort By</label>
+                                <select class="filter-select" id="librarySortFilter">
+                                    <option value="recent">Most Recent</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="title">Title A-Z</option>
+                                </select>
+                            </div>
+                            <div class="filter-search">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                <input type="text" placeholder="Search content..." id="librarySearch">
+                            </div>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="library-grid" id="libraryGrid">
+                                <!-- Content items will be dynamically inserted here -->
+                            </div>
+                            
+                            <div class="library-empty" id="libraryEmpty" style="display: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <h4>No content found</h4>
+                                <p>Try adjusting your filters or create new content</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Content Modal -->
+                <div class="modal-overlay" id="viewContentModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <div>
+                                <h3 id="viewContentTitle">Content Title</h3>
+                                <div class="content-meta">
+                                    <span class="content-type-badge" id="viewContentType">LinkedIn Post</span>
+                                    <span class="content-date" id="viewContentDate">Created Dec 26, 2024</span>
+                                </div>
+                            </div>
+                            <button class="modal-close" onclick="closeViewContent()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="content-display" id="viewContentBody">
+                                <!-- Content will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeViewContent()">Close</button>
+                            <button class="btn-outline" onclick="copyContentToClipboard()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy
+                            </button>
+                            <button class="btn-solid" onclick="editContentFromView()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Outreach Manager Page -->
                 <div class="page-content" id="outreach-content">
                     <!-- Page Header -->
@@ -671,14 +773,14 @@
                                 </div>
 
                                 <div class="campaign-footer">
-                                    <button class="btn-small btn-outline" onclick="viewCampaign(1)">
+                                    <button class="btn-small btn-outline" onclick="viewOutreachDetails(1)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
                                         View Details
                                     </button>
-                                    <button class="btn-small btn-outline" onclick="pauseCampaign(1)">
+                                    <button class="btn-small btn-outline" onclick="pauseOutreachCampaign(1)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="6" y="4" width="4" height="16"></rect>
                                             <rect x="14" y="4" width="4" height="16"></rect>
@@ -737,14 +839,14 @@
                                 </div>
 
                                 <div class="campaign-footer">
-                                    <button class="btn-small btn-outline" onclick="viewCampaign(2)">
+                                    <button class="btn-small btn-outline" onclick="viewOutreachDetails(2)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
                                         View Details
                                     </button>
-                                    <button class="btn-small btn-outline" onclick="pauseCampaign(2)">
+                                    <button class="btn-small btn-outline" onclick="pauseOutreachCampaign(2)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="6" y="4" width="4" height="16"></rect>
                                             <rect x="14" y="4" width="4" height="16"></rect>
@@ -803,14 +905,14 @@
                                 </div>
 
                                 <div class="campaign-footer">
-                                    <button class="btn-small btn-outline" onclick="viewCampaign(3)">
+                                    <button class="btn-small btn-outline" onclick="viewOutreachDetails(3)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
                                         View Details
                                     </button>
-                                    <button class="btn-small btn-solid" onclick="resumeCampaign(3)">
+                                    <button class="btn-small btn-solid" onclick="resumeOutreachCampaign(3)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polygon points="5 3 19 12 5 21 5 3"></polygon>
                                         </svg>
@@ -1010,6 +1112,406 @@
                                 <button class="btn-solid" id="nextStepBtn" onclick="nextStep()">Next</button>
                                 <button class="btn-solid" id="launchBtn" onclick="launchCampaign()" style="display: none;">Launch Campaign</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outreach Campaign Details Modal -->
+                <div class="modal-overlay" id="outreachDetailsModal">
+                    <div class="modal-container modal-xlarge">
+                        <div class="modal-header">
+                            <div>
+                                <h3 id="outreachCampaignName">Campaign Details</h3>
+                                <div class="content-meta">
+                                    <span class="campaign-status-badge" id="outreachCampaignStatus">Active</span>
+                                    <span class="content-date" id="outreachCampaignDate">Started Dec 15, 2024</span>
+                                </div>
+                            </div>
+                            <button class="modal-close" onclick="closeOutreachDetails()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Campaign Overview -->
+                            <div class="report-section">
+                                <h4>Campaign Overview</h4>
+                                <div class="campaign-overview-grid">
+                                    <div class="overview-item">
+                                        <div class="overview-label">Target Audience</div>
+                                        <div class="overview-value" id="outreachTargetAudience">Tech Founders & CTOs</div>
+                                    </div>
+                                    <div class="overview-item">
+                                        <div class="overview-label">Total Recipients</div>
+                                        <div class="overview-value" id="outreachTotalRecipients">850</div>
+                                    </div>
+                                    <div class="overview-item">
+                                        <div class="overview-label">Sequence Steps</div>
+                                        <div class="overview-value" id="outreachSequenceSteps">4 emails</div>
+                                    </div>
+                                    <div class="overview-item">
+                                        <div class="overview-label">Channel</div>
+                                        <div class="overview-value" id="outreachChannel">Email + LinkedIn</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Metrics -->
+                            <div class="report-section">
+                                <h4>Performance Metrics</h4>
+                                <div class="report-stats-grid">
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon sent">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="outreachSent">347</div>
+                                        <div class="stat-label">Messages Sent</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon opened">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="outreachOpened">32%</div>
+                                        <div class="stat-label">Open Rate</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon clicked">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="outreachReplied">8%</div>
+                                        <div class="stat-label">Reply Rate</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon conversions">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="outreachBooked">12</div>
+                                        <div class="stat-label">Meetings Booked</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sequence Steps -->
+                            <div class="report-section">
+                                <h4>Sequence Steps</h4>
+                                <div class="sequence-steps" id="sequenceStepsList">
+                                    <!-- Steps will be inserted here -->
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity -->
+                            <div class="report-section">
+                                <h4>Recent Activity</h4>
+                                <div class="activity-timeline" id="recentActivityList">
+                                    <!-- Activity will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeOutreachDetails()">Close</button>
+                            <button class="btn-outline" onclick="exportOutreachReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Export Report
+                            </button>
+                            <button class="btn-solid" onclick="editOutreachCampaign()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                Edit Campaign
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pause Campaign Confirmation Modal -->
+                <div class="modal-overlay" id="pauseOutreachModal">
+                    <div class="modal-container modal-small">
+                        <div class="modal-header">
+                            <h3>Pause Campaign</h3>
+                            <button class="modal-close" onclick="closePauseOutreach()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="pause-confirmation">
+                                <div class="pause-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="10" y1="15" x2="10" y2="9"></line>
+                                        <line x1="14" y1="15" x2="14" y2="9"></line>
+                                    </svg>
+                                </div>
+                                <h4>Pause this campaign?</h4>
+                                <p id="pauseCampaignMessage">This will stop all scheduled messages from being sent. You can resume the campaign at any time.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closePauseOutreach()">Cancel</button>
+                            <button class="btn-warning" onclick="confirmPauseOutreach()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="10" y1="15" x2="10" y2="9"></line>
+                                    <line x1="14" y1="15" x2="14" y2="9"></line>
+                                </svg>
+                                Pause Campaign
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Outreach Campaign Modal -->
+                <div class="modal-overlay" id="editOutreachCampaignModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Edit Campaign</h3>
+                            <button class="modal-close" onclick="closeEditOutreachCampaign()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Campaign Name -->
+                            <div class="form-section">
+                                <h4>Campaign Details</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Campaign Name <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="editOutreachName" placeholder="Campaign name">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Target Audience</label>
+                                        <input type="text" class="form-input" id="editOutreachAudience" placeholder="e.g., Tech Founders">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Total Recipients</label>
+                                        <input type="number" class="form-input" id="editOutreachRecipients" placeholder="850">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sequence Steps -->
+                            <div class="form-section">
+                                <h4>Sequence Steps</h4>
+                                <div id="editSequenceSteps">
+                                    <!-- Steps will be dynamically loaded here -->
+                                </div>
+                                <button class="btn-outline" onclick="addSequenceStep()" style="margin-top: 12px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add Step
+                                </button>
+                            </div>
+
+                            <!-- Settings -->
+                            <div class="form-section">
+                                <h4>Settings</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Daily Send Limit</label>
+                                        <input type="number" class="form-input" id="editDailyLimit" placeholder="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Sending Schedule</label>
+                                        <select class="form-input" id="editSendingSchedule">
+                                            <option value="business-hours">Business Hours (9AM-5PM)</option>
+                                            <option value="morning">Morning (9AM-12PM)</option>
+                                            <option value="afternoon">Afternoon (12PM-5PM)</option>
+                                            <option value="anytime">Anytime</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="editAutoResume" checked>
+                                    <span class="checkbox-label">Auto-resume after reply</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeEditOutreachCampaign()">Cancel</button>
+                            <button class="btn-solid" onclick="saveOutreachCampaignEdit()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Outreach Report Modal -->
+                <div class="modal-overlay" id="exportOutreachReportModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Export Campaign Report</h3>
+                            <button class="modal-close" onclick="closeExportOutreachReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Campaign Info -->
+                            <div class="export-campaign-info">
+                                <div class="campaign-info-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 id="exportOutreachCampaignName">Campaign Name</h4>
+                                    <p id="exportOutreachCampaignStats">347 sent • 32% opened • 8% replied • 12 meetings booked</p>
+                                </div>
+                            </div>
+
+                            <!-- Report Sections -->
+                            <div class="form-section">
+                                <h4>Include in Report</h4>
+                                <div class="metrics-grid">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="overview" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Campaign Overview</strong>
+                                            <small>Audience, recipients, timeline</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="performance" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Performance Metrics</strong>
+                                            <small>Sent, opened, replied, booked</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="sequence" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Sequence Details</strong>
+                                            <small>All steps with performance</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="activity" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Recent Activity</strong>
+                                            <small>Timeline of events</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="recipients">
+                                        <span class="checkbox-label">
+                                            <strong>Recipient List</strong>
+                                            <small>All contacts with status</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="outreach-section" value="replies">
+                                        <span class="checkbox-label">
+                                            <strong>All Replies</strong>
+                                            <small>Full reply transcripts</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Export Format -->
+                            <div class="form-section">
+                                <h4>Export Format</h4>
+                                <div class="format-selector">
+                                    <label class="format-option">
+                                        <input type="radio" name="outreach-format" value="pdf" checked>
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            </svg>
+                                            <div class="format-name">PDF</div>
+                                            <div class="format-desc">Complete report</div>
+                                        </div>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" name="outreach-format" value="excel">
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="3" y1="9" x2="21" y2="9"></line>
+                                                <line x1="9" y1="3" x2="9" y2="21"></line>
+                                            </svg>
+                                            <div class="format-name">Excel</div>
+                                            <div class="format-desc">Data & charts</div>
+                                        </div>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" name="outreach-format" value="csv">
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                                <polyline points="13 2 13 9 20 9"></polyline>
+                                            </svg>
+                                            <div class="format-name">CSV</div>
+                                            <div class="format-desc">Raw data only</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Additional Options -->
+                            <div class="form-section">
+                                <h4>Additional Options</h4>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="outreach-option" value="includeCharts" checked>
+                                    <span class="checkbox-label">Include performance charts</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="outreach-option" value="includeTimeline" checked>
+                                    <span class="checkbox-label">Include activity timeline</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="outreach-option" value="includeBenchmarks">
+                                    <span class="checkbox-label">Compare with industry benchmarks</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeExportOutreachReport()">Cancel</button>
+                            <button class="btn-solid" onclick="generateOutreachReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Generate Report
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1503,6 +2005,229 @@
                     </div>
                 </div>
 
+                <!-- Add Lead Modal -->
+                <div class="modal-overlay" id="addLeadModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Add New Lead</h3>
+                            <button class="modal-close" onclick="closeAddLead()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addLeadForm">
+                                <!-- Contact Information -->
+                                <div class="form-section">
+                                    <h4>Contact Information</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">First Name <span class="required">*</span></label>
+                                            <input type="text" class="form-input" id="leadFirstName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Last Name <span class="required">*</span></label>
+                                            <input type="text" class="form-input" id="leadLastName" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Email <span class="required">*</span></label>
+                                            <input type="email" class="form-input" id="leadEmail" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Phone</label>
+                                            <input type="tel" class="form-input" id="leadPhone">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Company Information -->
+                                <div class="form-section">
+                                    <h4>Company Information</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Company Name <span class="required">*</span></label>
+                                            <input type="text" class="form-input" id="leadCompany" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Job Title</label>
+                                            <input type="text" class="form-input" id="leadTitle">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Industry</label>
+                                        <select class="form-input" id="leadIndustry">
+                                            <option value="">Select industry...</option>
+                                            <option value="technology">Technology</option>
+                                            <option value="finance">Finance</option>
+                                            <option value="healthcare">Healthcare</option>
+                                            <option value="retail">Retail</option>
+                                            <option value="manufacturing">Manufacturing</option>
+                                            <option value="education">Education</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Lead Details -->
+                                <div class="form-section">
+                                    <h4>Lead Details</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Lead Source</label>
+                                            <select class="form-input" id="leadSource">
+                                                <option value="website">Website</option>
+                                                <option value="linkedin">LinkedIn</option>
+                                                <option value="referral">Referral</option>
+                                                <option value="cold-outreach">Cold Outreach</option>
+                                                <option value="event">Event</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Lead Value</label>
+                                            <input type="number" class="form-input" id="leadValue" placeholder="£">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Initial Stage</label>
+                                        <select class="form-input" id="leadStage">
+                                            <option value="new">New</option>
+                                            <option value="contacted">Contacted</option>
+                                            <option value="qualified">Qualified</option>
+                                            <option value="proposal">Proposal</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-textarea" id="leadNotes" rows="3" placeholder="Additional information about this lead..."></textarea>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeAddLead()">Cancel</button>
+                            <button class="btn-solid" onclick="saveNewLead()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Add Lead
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Leads Modal -->
+                <div class="modal-overlay" id="importLeadsModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Import Leads</h3>
+                            <button class="modal-close" onclick="closeImportLeads()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Import Instructions -->
+                            <div class="import-info">
+                                <div class="info-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>CSV Format Required</h4>
+                                    <p>Upload a CSV file with columns: first_name, last_name, email, phone, company, title, industry, source, value, notes</p>
+                                    <a href="#" class="download-template" onclick="downloadLeadTemplate(); return false;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                        Download CSV Template
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Upload Area -->
+                            <div class="import-upload-area" id="importUploadArea">
+                                <input type="file" id="leadsFileUpload" accept=".csv" hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p>Drop CSV file here or click to browse</p>
+                                <button class="btn-outline" onclick="document.getElementById('leadsFileUpload').click()">
+                                    Select File
+                                </button>
+                            </div>
+
+                            <!-- Import Preview -->
+                            <div class="import-preview" id="importLeadsPreview" style="display: none;">
+                                <h4>Import Preview</h4>
+                                
+                                <!-- Stats -->
+                                <div class="import-stats">
+                                    <div class="import-stat">
+                                        <div class="import-stat-value" id="totalLeadsCount">0</div>
+                                        <div class="import-stat-label">Total Leads</div>
+                                    </div>
+                                    <div class="import-stat">
+                                        <div class="import-stat-value" id="validLeadsCount">0</div>
+                                        <div class="import-stat-label">Valid</div>
+                                    </div>
+                                    <div class="import-stat">
+                                        <div class="import-stat-value error" id="invalidLeadsCount">0</div>
+                                        <div class="import-stat-label">Invalid</div>
+                                    </div>
+                                    <div class="import-stat">
+                                        <div class="import-stat-value warning" id="duplicateLeadsCount">0</div>
+                                        <div class="import-stat-label">Duplicates</div>
+                                    </div>
+                                </div>
+
+                                <!-- Field Mapping -->
+                                <div class="field-mapping">
+                                    <h5>Field Mapping</h5>
+                                    <p class="field-mapping-desc">Confirm how your CSV columns map to lead fields</p>
+                                    <div id="fieldMappingGrid" class="mapping-grid">
+                                        <!-- Dynamic field mappings will be inserted here -->
+                                    </div>
+                                </div>
+
+                                <!-- Sample Preview -->
+                                <div class="sample-preview">
+                                    <h5>Sample Data (First 3 rows)</h5>
+                                    <div class="preview-table" id="sampleDataTable">
+                                        <!-- Table will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeImportLeads()">Cancel</button>
+                            <button class="btn-solid" id="importLeadsBtn" onclick="confirmImportLeads()" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Import <span id="importCountBadge"></span> Leads
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Social Media Page -->
                 <div class="page-content" id="social-content">
                     <!-- Page Header -->
@@ -1815,7 +2540,7 @@
                                             </span>
                                         </div>
                                         <div class="post-content">
-                                            <p>🚀 Excited to share our Q4 growth insights! We've helped 50+ businesses automate their operations and save 20+ hours per week...</p>
+                                            <p>🚀 Excited to share our Q4 growth insights! We've helped 50+ businesses automate their operations and save 20+ hours per week. Here's what we learned about scaling with AI...</p>
                                         </div>
                                         <div class="post-meta">
                                             <span class="post-time">
@@ -1851,22 +2576,17 @@
                                             </button>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div class="queue-section">
-                                <h3 class="queue-section-title">Tomorrow</h3>
-                                <div class="queue-posts">
                                     <div class="queue-post-card">
                                         <div class="post-platforms">
-                                            <span class="platform-badge linkedin">
+                                            <span class="platform-badge instagram">
                                                 <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path>
+                                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path>
                                                 </svg>
                                             </span>
                                         </div>
                                         <div class="post-content">
-                                            <p>Here's how AI automation transformed our client's recruitment process: ✓ 40% faster hiring ✓ 60% cost reduction ✓ Better candidate quality</p>
+                                            <p>Behind the scenes at Bashua HQ 💼✨ Our team working hard to build the future of operations automation. Swipe to see our development process! #TechStartup #AIInnovation</p>
                                         </div>
                                         <div class="post-meta">
                                             <span class="post-time">
@@ -1874,7 +2594,7 @@
                                                     <circle cx="12" cy="12" r="10"></circle>
                                                     <polyline points="12 6 12 12 16 14"></polyline>
                                                 </svg>
-                                                10:00 AM
+                                                5:30 PM
                                             </span>
                                             <span class="post-status scheduled">Scheduled</span>
                                         </div>
@@ -1906,9 +2626,220 @@
                             </div>
 
                             <div class="queue-section">
+                                <h3 class="queue-section-title">Tomorrow</h3>
+                                <div class="queue-posts">
+                                    <div class="queue-post-card">
+                                        <div class="post-platforms">
+                                            <span class="platform-badge linkedin">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="post-content">
+                                            <p>Here's how AI automation transformed our client's recruitment process:
+
+✅ 40% faster hiring
+✅ 60% cost reduction
+✅ Better candidate quality
+✅ Happier hiring managers
+
+Want to see how we can optimize your operations? Book a demo 👇</p>
+                                        </div>
+                                        <div class="post-meta">
+                                            <span class="post-time">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                10:00 AM
+                                            </span>
+                                            <span class="post-status scheduled">Scheduled</span>
+                                        </div>
+                                        <div class="post-actions-bar">
+                                            <button class="post-action-btn" onclick="editPost(3)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                </svg>
+                                                Edit
+                                            </button>
+                                            <button class="post-action-btn" onclick="previewPost(3)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                                Preview
+                                            </button>
+                                            <button class="post-action-btn danger" onclick="deletePost(3)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="queue-post-card">
+                                        <div class="post-platforms">
+                                            <span class="platform-badge twitter">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="post-content">
+                                            <p>Hot take: Manual operations in 2024 is like using a typewriter instead of a computer 🤯
+
+AI automation isn't the future—it's NOW.
+
+What operational task are you still doing manually? 👇</p>
+                                        </div>
+                                        <div class="post-meta">
+                                            <span class="post-time">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                3:00 PM
+                                            </span>
+                                            <span class="post-status scheduled">Scheduled</span>
+                                        </div>
+                                        <div class="post-actions-bar">
+                                            <button class="post-action-btn" onclick="editPost(4)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                </svg>
+                                                Edit
+                                            </button>
+                                            <button class="post-action-btn" onclick="previewPost(4)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                                Preview
+                                            </button>
+                                            <button class="post-action-btn danger" onclick="deletePost(4)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="queue-section">
                                 <h3 class="queue-section-title">Later This Week</h3>
                                 <div class="queue-posts">
-                                    <p class="empty-queue-message">No posts scheduled for later this week. <a href="#" onclick="document.getElementById('createPostBtn').click(); return false;">Schedule a post</a></p>
+                                    <div class="queue-post-card">
+                                        <div class="post-platforms">
+                                            <span class="platform-badge linkedin">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path>
+                                                </svg>
+                                            </span>
+                                            <span class="platform-badge twitter">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="post-content">
+                                            <p>📊 New research: Companies using AI automation see an average ROI of 300% in the first year.
+
+But here's what they don't tell you about implementing AI systems... [Thread 🧵]</p>
+                                        </div>
+                                        <div class="post-meta">
+                                            <span class="post-time">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                Mon, 9:00 AM
+                                            </span>
+                                            <span class="post-status scheduled">Scheduled</span>
+                                        </div>
+                                        <div class="post-actions-bar">
+                                            <button class="post-action-btn" onclick="editPost(5)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                </svg>
+                                                Edit
+                                            </button>
+                                            <button class="post-action-btn" onclick="previewPost(5)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                                Preview
+                                            </button>
+                                            <button class="post-action-btn danger" onclick="deletePost(5)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="queue-post-card">
+                                        <div class="post-platforms">
+                                            <span class="platform-badge instagram">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="post-content">
+                                            <p>Client spotlight 🌟 
+
+Meet Sarah, who went from spending 15 hours/week on admin tasks to zero with our AI systems.
+
+Now she focuses on what she does best: growing her business.
+
+Your success story could be next 💪 #ClientWins #Automation</p>
+                                        </div>
+                                        <div class="post-meta">
+                                            <span class="post-time">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                Wed, 4:00 PM
+                                            </span>
+                                            <span class="post-status scheduled">Scheduled</span>
+                                        </div>
+                                        <div class="post-actions-bar">
+                                            <button class="post-action-btn" onclick="editPost(6)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 20h9"></path>
+                                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                                </svg>
+                                                Edit
+                                            </button>
+                                            <button class="post-action-btn" onclick="previewPost(6)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                                Preview
+                                            </button>
+                                            <button class="post-action-btn danger" onclick="deletePost(6)">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2024,6 +2955,351 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Post Modal -->
+                <div class="modal-overlay" id="createPostModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Create New Post</h3>
+                            <button class="modal-close" onclick="closeCreatePostModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Platform Selection -->
+                            <div class="form-section">
+                                <label class="form-label">Select Platforms</label>
+                                <div class="platform-checkboxes">
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="platform" value="linkedin" checked>
+                                        <span class="checkbox-card linkedin">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path>
+                                            </svg>
+                                            LinkedIn
+                                        </span>
+                                    </label>
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="platform" value="twitter">
+                                        <span class="checkbox-card twitter">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                            </svg>
+                                            Twitter
+                                        </span>
+                                    </label>
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="platform" value="instagram">
+                                        <span class="checkbox-card instagram">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path>
+                                            </svg>
+                                            Instagram
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Post Content -->
+                            <div class="form-section">
+                                <label class="form-label">Post Content</label>
+                                <textarea class="form-textarea" id="postContent" rows="8" placeholder="What's on your mind?"></textarea>
+                                <div class="character-count">
+                                    <span id="charCount">0</span> / <span id="charLimit">3000</span> characters
+                                </div>
+                            </div>
+
+                            <!-- Media Upload -->
+                            <div class="form-section">
+                                <label class="form-label">Media (Optional)</label>
+                                <div class="media-upload-area">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                    <p>Click to upload or drag and drop</p>
+                                    <p class="upload-hint">PNG, JPG, GIF up to 10MB</p>
+                                    <input type="file" id="mediaUpload" accept="image/*" hidden>
+                                </div>
+                            </div>
+
+                            <!-- Scheduling -->
+                            <div class="form-section">
+                                <label class="form-label">Schedule</label>
+                                <div class="schedule-options">
+                                    <label class="schedule-radio">
+                                        <input type="radio" name="schedule" value="now" checked>
+                                        <span>Post Now</span>
+                                    </label>
+                                    <label class="schedule-radio">
+                                        <input type="radio" name="schedule" value="schedule">
+                                        <span>Schedule for Later</span>
+                                    </label>
+                                </div>
+                                <div class="schedule-datetime" id="scheduleDatetime" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <input type="date" class="form-input" id="scheduleDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="time" class="form-input" id="scheduleTime">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeCreatePostModal()">Cancel</button>
+                            <button class="btn-outline" onclick="saveDraftPost()">Save as Draft</button>
+                            <button class="btn-solid" onclick="publishPost()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                                Schedule Post
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Upload Modal -->
+                <div class="modal-overlay" id="bulkUploadModal">
+                    <div class="modal-container modal-medium">
+                        <div class="modal-header">
+                            <h3>Bulk Upload Posts</h3>
+                            <button class="modal-close" onclick="closeBulkUploadModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="bulk-upload-info">
+                                <div class="info-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4>CSV Format Required</h4>
+                                    <p>Upload a CSV file with columns: platform, content, date, time</p>
+                                    <a href="#" class="download-template" onclick="downloadTemplate(); return false;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                        Download Template
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="bulk-upload-area">
+                                <input type="file" id="bulkCsvUpload" accept=".csv" hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p>Drop CSV file here or click to browse</p>
+                                <button class="btn-outline" onclick="document.getElementById('bulkCsvUpload').click()">
+                                    Select File
+                                </button>
+                            </div>
+
+                            <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                <h4>Preview</h4>
+                                <div class="preview-stats">
+                                    <div class="preview-stat">
+                                        <span class="stat-number" id="totalPosts">0</span>
+                                        <span class="stat-label">Total Posts</span>
+                                    </div>
+                                    <div class="preview-stat">
+                                        <span class="stat-number" id="linkedinPosts">0</span>
+                                        <span class="stat-label">LinkedIn</span>
+                                    </div>
+                                    <div class="preview-stat">
+                                        <span class="stat-number" id="twitterPosts">0</span>
+                                        <span class="stat-label">Twitter</span>
+                                    </div>
+                                    <div class="preview-stat">
+                                        <span class="stat-number" id="instagramPosts">0</span>
+                                        <span class="stat-label">Instagram</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeBulkUploadModal()">Cancel</button>
+                            <button class="btn-solid" id="uploadBulkBtn" onclick="uploadBulkPosts()" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Upload Posts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Post Modal -->
+                <div class="modal-overlay" id="editPostModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Edit Post</h3>
+                            <button class="modal-close" onclick="closeEditPostModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Platform Selection -->
+                            <div class="form-section">
+                                <label class="form-label">Select Platforms</label>
+                                <div class="platform-checkboxes">
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="edit-platform" value="linkedin" id="edit-linkedin">
+                                        <span class="checkbox-card linkedin">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path>
+                                            </svg>
+                                            LinkedIn
+                                        </span>
+                                    </label>
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="edit-platform" value="twitter" id="edit-twitter">
+                                        <span class="checkbox-card twitter">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                            </svg>
+                                            Twitter
+                                        </span>
+                                    </label>
+                                    <label class="platform-checkbox">
+                                        <input type="checkbox" name="edit-platform" value="instagram" id="edit-instagram">
+                                        <span class="checkbox-card instagram">
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path>
+                                            </svg>
+                                            Instagram
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Post Content -->
+                            <div class="form-section">
+                                <label class="form-label">Post Content</label>
+                                <textarea class="form-textarea" id="editPostContent" rows="8" placeholder="What's on your mind?"></textarea>
+                                <div class="character-count">
+                                    <span id="editCharCount">0</span> / <span id="editCharLimit">3000</span> characters
+                                </div>
+                            </div>
+
+                            <!-- Scheduling -->
+                            <div class="form-section">
+                                <label class="form-label">Schedule</label>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="date" class="form-input" id="editScheduleDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="time" class="form-input" id="editScheduleTime">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeEditPostModal()">Cancel</button>
+                            <button class="btn-solid" onclick="saveEditedPost()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Post Modal -->
+                <div class="modal-overlay" id="previewPostModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Post Preview</h3>
+                            <button class="modal-close" onclick="closePreviewPostModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="preview-platforms" id="previewPlatforms">
+                                <!-- Platform previews will be inserted here -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closePreviewPostModal()">Close</button>
+                            <button class="btn-solid" onclick="editFromPreview()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                Edit Post
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div class="modal-overlay" id="deletePostModal">
+                    <div class="modal-container modal-small">
+                        <div class="modal-header">
+                            <h3>Delete Post</h3>
+                            <button class="modal-close" onclick="closeDeletePostModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="delete-confirmation">
+                                <div class="delete-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <h4>Are you sure?</h4>
+                                <p>This post will be permanently deleted and cannot be recovered.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeDeletePostModal()">Cancel</button>
+                            <button class="btn-danger" onclick="confirmDeletePost()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Delete Post
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2471,6 +3747,423 @@
                     </div>
                 </div>
 
+                <!-- Email Campaign Report Modal -->
+                <div class="modal-overlay" id="campaignReportModal">
+                    <div class="modal-container modal-xlarge">
+                        <div class="modal-header">
+                            <div>
+                                <h3 id="reportCampaignName">Campaign Report</h3>
+                                <div class="content-meta">
+                                    <span class="campaign-status-badge" id="reportCampaignStatus">Active</span>
+                                    <span class="content-date" id="reportCampaignDate">Started Dec 10, 2024</span>
+                                </div>
+                            </div>
+                            <button class="modal-close" onclick="closeCampaignReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Performance Overview -->
+                            <div class="report-section">
+                                <h4>Performance Overview</h4>
+                                <div class="report-stats-grid">
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon sent">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="reportSent">2,847</div>
+                                        <div class="stat-label">Emails Sent</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon opened">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                <polyline points="22,6 12,13 2,6"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="reportOpened">25%</div>
+                                        <div class="stat-label">Open Rate</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon clicked">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                <polyline points="15 3 21 3 21 9"></polyline>
+                                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="reportClicked">5%</div>
+                                        <div class="stat-label">Click Rate</div>
+                                    </div>
+                                    <div class="report-stat-card">
+                                        <div class="stat-icon conversions">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                            </svg>
+                                        </div>
+                                        <div class="stat-value" id="reportConversions">1.2%</div>
+                                        <div class="stat-label">Conversion Rate</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Engagement Timeline -->
+                            <div class="report-section">
+                                <h4>Engagement Over Time</h4>
+                                <div class="timeline-chart">
+                                    <canvas id="engagementChart" width="800" height="200"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Link Performance -->
+                            <div class="report-section">
+                                <h4>Top Links</h4>
+                                <div class="links-table">
+                                    <div class="link-row">
+                                        <div class="link-url">https://bashua.com/demo</div>
+                                        <div class="link-clicks">147 clicks</div>
+                                        <div class="link-rate">5.2%</div>
+                                    </div>
+                                    <div class="link-row">
+                                        <div class="link-url">https://bashua.com/pricing</div>
+                                        <div class="link-clicks">89 clicks</div>
+                                        <div class="link-rate">3.1%</div>
+                                    </div>
+                                    <div class="link-row">
+                                        <div class="link-url">https://bashua.com/case-studies</div>
+                                        <div class="link-clicks">52 clicks</div>
+                                        <div class="link-rate">1.8%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeCampaignReport()">Close</button>
+                            <button class="btn-outline" onclick="exportCampaignReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Export PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Campaign Modal -->
+                <div class="modal-overlay" id="editCampaignModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Edit Campaign</h3>
+                            <button class="modal-close" onclick="closeEditCampaign()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-section">
+                                <label class="form-label">Campaign Name</label>
+                                <input type="text" class="form-input" id="editCampaignName" placeholder="Campaign name">
+                            </div>
+                            <div class="form-section">
+                                <label class="form-label">Subject Line</label>
+                                <input type="text" class="form-input" id="editCampaignSubject" placeholder="Email subject">
+                            </div>
+                            <div class="form-section">
+                                <label class="form-label">Email Content</label>
+                                <textarea class="form-textarea" id="editCampaignContent" rows="12" placeholder="Email body..."></textarea>
+                            </div>
+                            <div class="form-section">
+                                <label class="form-label">Schedule (Optional)</label>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="date" class="form-input" id="editCampaignDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="time" class="form-input" id="editCampaignTime">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeEditCampaign()">Cancel</button>
+                            <button class="btn-solid" onclick="saveCampaignEdit()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Campaign Modal -->
+                <div class="modal-overlay" id="previewCampaignModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Campaign Preview</h3>
+                            <button class="modal-close" onclick="closePreviewCampaign()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="email-preview">
+                                <div class="email-preview-header">
+                                    <div class="preview-from">
+                                        <strong>From:</strong> <span id="previewFrom">Toni Bashua &lt;toni@bashua.com&gt;</span>
+                                    </div>
+                                    <div class="preview-subject">
+                                        <strong>Subject:</strong> <span id="previewSubject">Campaign Subject</span>
+                                    </div>
+                                </div>
+                                <div class="email-preview-body" id="previewContent">
+                                    <!-- Email content will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closePreviewCampaign()">Close</button>
+                            <button class="btn-solid" onclick="sendTestEmail()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                                Send Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Send Test Email Modal -->
+                <div class="modal-overlay" id="sendTestModal">
+                    <div class="modal-container modal-small">
+                        <div class="modal-header">
+                            <h3>Send Test Email</h3>
+                            <button class="modal-close" onclick="closeSendTest()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-section">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-input" id="testEmailAddress" placeholder="your@email.com">
+                                <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+                                    We'll send a test version of this campaign to this address
+                                </p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeSendTest()">Cancel</button>
+                            <button class="btn-solid" onclick="confirmSendTest()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                                Send Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Library Modal -->
+                <div class="modal-overlay" id="templateLibraryModal">
+                    <div class="modal-container modal-xlarge">
+                        <div class="modal-header">
+                            <h3>Email Templates</h3>
+                            <button class="modal-close" onclick="closeTemplateLibrary()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Template Categories -->
+                        <div class="template-categories">
+                            <button class="template-category-btn active" data-category="all">All Templates</button>
+                            <button class="template-category-btn" data-category="welcome">Welcome Series</button>
+                            <button class="template-category-btn" data-category="promotional">Promotional</button>
+                            <button class="template-category-btn" data-category="newsletter">Newsletter</button>
+                            <button class="template-category-btn" data-category="transactional">Transactional</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="templates-grid" id="templatesGrid">
+                                <!-- Templates will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Email Campaign Modal -->
+                <div class="modal-overlay" id="newCampaignEmailModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Create New Campaign</h3>
+                            <button class="modal-close" onclick="closeNewCampaignEmail()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Campaign Details -->
+                            <div class="form-section">
+                                <h4>Campaign Details</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Campaign Name <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="newCampaignName" placeholder="Q1 Newsletter">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Subject Line <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="newCampaignSubject" placeholder="Your subject line...">
+                                    <span class="input-hint">Keep it under 50 characters for best results</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Preview Text</label>
+                                    <input type="text" class="form-input" id="newCampaignPreview" placeholder="This appears after the subject...">
+                                </div>
+                            </div>
+
+                            <!-- Email Content -->
+                            <div class="form-section">
+                                <h4>Email Content</h4>
+                                <div class="content-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="contentType" value="template" checked>
+                                        <span class="radio-label">Use Template</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="contentType" value="custom">
+                                        <span class="radio-label">Write Custom</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- Template Selection -->
+                                <div id="templateSelection" class="template-selection">
+                                    <label class="form-label">Select Template</label>
+                                    <select class="form-input" id="selectedTemplate">
+                                        <option value="">Choose a template...</option>
+                                        <option value="1">Welcome Email</option>
+                                        <option value="2">Product Launch</option>
+                                        <option value="3">Weekly Newsletter</option>
+                                        <option value="4">Event Invitation</option>
+                                        <option value="5">Holiday Sale</option>
+                                    </select>
+                                </div>
+
+                                <!-- Custom Content -->
+                                <div id="customContent" style="display: none;">
+                                    <label class="form-label">Email Body</label>
+                                    <textarea class="form-textarea" id="newCampaignContent" rows="12" placeholder="Hi {{first_name}},
+
+Your email content here...
+
+Best regards,
+Your Team"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Recipients -->
+                            <div class="form-section">
+                                <h4>Recipients</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Send To <span class="required">*</span></label>
+                                    <select class="form-input" id="newCampaignRecipients">
+                                        <option value="">Select audience...</option>
+                                        <option value="all">All Subscribers (2,847)</option>
+                                        <option value="active">Active Users (1,923)</option>
+                                        <option value="inactive">Inactive Users (924)</option>
+                                        <option value="new">New Signups (234)</option>
+                                        <option value="segment">Custom Segment...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Schedule -->
+                            <div class="form-section">
+                                <h4>Schedule</h4>
+                                <div class="schedule-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="scheduleType" value="now" checked>
+                                        <span class="radio-label">Send Now</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="scheduleType" value="later">
+                                        <span class="radio-label">Schedule for Later</span>
+                                    </label>
+                                </div>
+
+                                <div id="scheduleDateTime" style="display: none; margin-top: 16px;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Date</label>
+                                            <input type="date" class="form-input" id="newCampaignDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Time</label>
+                                            <input type="time" class="form-input" id="newCampaignTime">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Advanced Options -->
+                            <div class="form-section">
+                                <h4>Advanced Options</h4>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="trackOpens" checked>
+                                    <span class="checkbox-label">Track email opens</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="trackClicks" checked>
+                                    <span class="checkbox-label">Track link clicks</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" id="enableUnsubscribe" checked>
+                                    <span class="checkbox-label">Include unsubscribe link</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeNewCampaignEmail()">Cancel</button>
+                            <button class="btn-outline" onclick="saveCampaignDraft()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save as Draft
+                            </button>
+                            <button class="btn-solid" onclick="createEmailCampaign()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                                Create Campaign
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Analytics Page -->
                 <div class="page-content" id="analytics-content">
                     <!-- Page Header -->
@@ -2891,6 +4584,239 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Analytics Report Modal -->
+                <div class="modal-overlay" id="exportAnalyticsModal">
+                    <div class="modal-container modal-large">
+                        <div class="modal-header">
+                            <h3>Export Analytics Report</h3>
+                            <button class="modal-close" onclick="closeExportAnalytics()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Date Range Selection -->
+                            <div class="form-section">
+                                <h4>Date Range</h4>
+                                <div class="date-range-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="last7days" checked>
+                                        <span class="radio-label">Last 7 Days</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="last30days">
+                                        <span class="radio-label">Last 30 Days</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="last90days">
+                                        <span class="radio-label">Last 90 Days</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="thisMonth">
+                                        <span class="radio-label">This Month</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="lastMonth">
+                                        <span class="radio-label">Last Month</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="dateRange" value="custom">
+                                        <span class="radio-label">Custom Range</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- Custom Date Range -->
+                                <div class="custom-date-range" id="customDateRange" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Start Date</label>
+                                            <input type="date" class="form-input" id="exportStartDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">End Date</label>
+                                            <input type="date" class="form-input" id="exportEndDate">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Metrics Selection -->
+                            <div class="form-section">
+                                <h4>Include Metrics</h4>
+                                <div class="metrics-grid">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="overview" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Overview Stats</strong>
+                                            <small>Total leads, campaigns, revenue</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="campaigns" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Campaign Performance</strong>
+                                            <small>Email & outreach metrics</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="leads" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Lead Pipeline</strong>
+                                            <small>Conversion rates & stages</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="social" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Social Media</strong>
+                                            <small>Engagement & reach</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="content" checked>
+                                        <span class="checkbox-label">
+                                            <strong>Content Performance</strong>
+                                            <small>Views & engagement</small>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="metric" value="roi">
+                                        <span class="checkbox-label">
+                                            <strong>ROI Analysis</strong>
+                                            <small>Cost per lead & revenue</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Charts & Visualizations -->
+                            <div class="form-section">
+                                <h4>Charts & Visualizations</h4>
+                                <div class="charts-options">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="chart" value="trends" checked>
+                                        <span class="checkbox-label">Performance Trends</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="chart" value="funnel" checked>
+                                        <span class="checkbox-label">Conversion Funnel</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="chart" value="breakdown">
+                                        <span class="checkbox-label">Channel Breakdown</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="chart" value="comparison">
+                                        <span class="checkbox-label">Period Comparison</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Export Format -->
+                            <div class="form-section">
+                                <h4>Export Format</h4>
+                                <div class="format-selector">
+                                    <label class="format-option">
+                                        <input type="radio" name="format" value="pdf" checked>
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                <polyline points="10 9 9 9 8 9"></polyline>
+                                            </svg>
+                                            <div class="format-name">PDF</div>
+                                            <div class="format-desc">Professional report with charts</div>
+                                        </div>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" name="format" value="excel">
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="3" y1="9" x2="21" y2="9"></line>
+                                                <line x1="3" y1="15" x2="21" y2="15"></line>
+                                                <line x1="9" y1="3" x2="9" y2="21"></line>
+                                                <line x1="15" y1="3" x2="15" y2="21"></line>
+                                            </svg>
+                                            <div class="format-name">Excel</div>
+                                            <div class="format-desc">Spreadsheet with raw data</div>
+                                        </div>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" name="format" value="csv">
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                                <polyline points="13 2 13 9 20 9"></polyline>
+                                            </svg>
+                                            <div class="format-name">CSV</div>
+                                            <div class="format-desc">Plain data for analysis</div>
+                                        </div>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" name="format" value="powerpoint">
+                                        <div class="format-card">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                                <polyline points="17 2 12 7 7 2"></polyline>
+                                            </svg>
+                                            <div class="format-name">PowerPoint</div>
+                                            <div class="format-desc">Presentation slides</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Additional Options -->
+                            <div class="form-section">
+                                <h4>Additional Options</h4>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="option" value="includeComparison" checked>
+                                    <span class="checkbox-label">Include comparison with previous period</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="option" value="includeGoals">
+                                    <span class="checkbox-label">Show progress towards goals</span>
+                                </label>
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="option" value="includeRecommendations">
+                                    <span class="checkbox-label">Include AI-powered recommendations</span>
+                                </label>
+                            </div>
+
+                            <!-- Report Preview -->
+                            <div class="export-preview">
+                                <div class="preview-info">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                    <div>
+                                        <strong>Report Preview</strong>
+                                        <p id="reportPreviewText">Your report will include overview stats, campaign performance, lead pipeline, social media, and content performance with performance trends and conversion funnel charts in PDF format.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-outline" onclick="closeExportAnalytics()">Cancel</button>
+                            <button class="btn-solid" onclick="generateAnalyticsReport()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Generate Report
+                            </button>
                         </div>
                     </div>
                 </div>

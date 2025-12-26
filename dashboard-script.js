@@ -2837,3 +2837,3268 @@ function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
+
+// ===================================
+// SOCIAL MEDIA MODALS
+// ===================================
+
+// Create Post Modal
+window.openCreatePostModal = function() {
+    document.getElementById('createPostModal').classList.add('active');
+    
+    // Set default date/time
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    document.getElementById('scheduleDate').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('scheduleTime').value = '10:00';
+};
+
+window.closeCreatePostModal = function() {
+    document.getElementById('createPostModal').classList.remove('active');
+    resetCreatePostForm();
+};
+
+function resetCreatePostForm() {
+    document.getElementById('postContent').value = '';
+    document.querySelectorAll('input[name="platform"]').forEach(cb => {
+        cb.checked = cb.value === 'linkedin';
+    });
+    document.querySelectorAll('input[name="schedule"]')[0].checked = true;
+    document.getElementById('scheduleDatetime').style.display = 'none';
+    updateCharCount();
+}
+
+// Character Counter
+document.addEventListener('DOMContentLoaded', function() {
+    const postContent = document.getElementById('postContent');
+    if (postContent) {
+        postContent.addEventListener('input', updateCharCount);
+    }
+    
+    // Schedule radio buttons
+    const scheduleRadios = document.querySelectorAll('input[name="schedule"]');
+    scheduleRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const datetime = document.getElementById('scheduleDatetime');
+            if (this.value === 'schedule') {
+                datetime.style.display = 'block';
+            } else {
+                datetime.style.display = 'none';
+            }
+        });
+    });
+    
+    // Media upload click
+    const uploadArea = document.querySelector('.media-upload-area');
+    if (uploadArea) {
+        uploadArea.addEventListener('click', function() {
+            document.getElementById('mediaUpload').click();
+        });
+    }
+    
+    // Bulk upload click
+    const bulkUploadArea = document.querySelector('.bulk-upload-area');
+    if (bulkUploadArea) {
+        bulkUploadArea.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON') {
+                document.getElementById('bulkCsvUpload').click();
+            }
+        });
+    }
+    
+    // CSV file upload
+    const csvUpload = document.getElementById('bulkCsvUpload');
+    if (csvUpload) {
+        csvUpload.addEventListener('change', handleCsvUpload);
+    }
+});
+
+function updateCharCount() {
+    const content = document.getElementById('postContent');
+    const count = document.getElementById('charCount');
+    const limit = document.getElementById('charLimit');
+    
+    if (content && count) {
+        const length = content.value.length;
+        count.textContent = length;
+        
+        // Get selected platforms
+        const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+            .map(cb => cb.value);
+        
+        // Update limit based on platform
+        let maxLength = 3000; // LinkedIn default
+        if (platforms.includes('twitter') && !platforms.includes('linkedin')) {
+            maxLength = 280;
+        }
+        
+        limit.textContent = maxLength;
+        
+        if (length > maxLength) {
+            count.style.color = 'var(--error)';
+        } else {
+            count.style.color = 'var(--text-muted)';
+        }
+    }
+}
+
+// Save Draft
+window.saveDraftPost = function() {
+    const content = document.getElementById('postContent').value;
+    const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+        .map(cb => cb.value);
+    
+    if (!content.trim()) {
+        showToast('Please enter post content', 'error');
+        return;
+    }
+    
+    if (platforms.length === 0) {
+        showToast('Please select at least one platform', 'error');
+        return;
+    }
+    
+    showToast('Draft saved successfully!', 'success');
+    console.log('Save draft:', { content, platforms });
+    closeCreatePostModal();
+};
+
+// Publish Post
+window.publishPost = function() {
+    const content = document.getElementById('postContent').value;
+    const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
+        .map(cb => cb.value);
+    const scheduleType = document.querySelector('input[name="schedule"]:checked').value;
+    
+    if (!content.trim()) {
+        showToast('Please enter post content', 'error');
+        return;
+    }
+    
+    if (platforms.length === 0) {
+        showToast('Please select at least one platform', 'error');
+        return;
+    }
+    
+    let postData = {
+        content,
+        platforms
+    };
+    
+    if (scheduleType === 'schedule') {
+        const date = document.getElementById('scheduleDate').value;
+        const time = document.getElementById('scheduleTime').value;
+        postData.scheduledFor = `${date}T${time}:00`;
+    } else {
+        postData.publishNow = true;
+    }
+    
+    showToast('Post scheduled successfully!', 'success');
+    console.log('Schedule post:', postData);
+    
+    closeCreatePostModal();
+    
+    // In production:
+    // POST /api/social-media/posts
+    // { content, platforms, scheduledFor }
+};
+
+// Bulk Upload Modal
+window.openBulkUploadModal = function() {
+    document.getElementById('bulkUploadModal').classList.add('active');
+};
+
+window.closeBulkUploadModal = function() {
+    document.getElementById('bulkUploadModal').classList.remove('active');
+    resetBulkUploadForm();
+};
+
+function resetBulkUploadForm() {
+    document.getElementById('bulkCsvUpload').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('uploadBulkBtn').disabled = true;
+}
+
+// Download Template
+window.downloadTemplate = function() {
+    const csvContent = `platform,content,date,time
+linkedin,"Excited to share our Q4 insights! 🚀",2024-12-27,10:00
+twitter,"Hot take: AI automation is NOW, not the future 🤯",2024-12-27,14:00
+instagram,"Behind the scenes at Bashua HQ ✨ #TechStartup",2024-12-27,17:00
+linkedin,"How we helped clients save 20+ hours/week with AI",2024-12-28,09:00`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'social-media-bulk-upload-template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    showToast('Template downloaded!', 'success');
+};
+
+// Handle CSV Upload
+function handleCsvUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.name.endsWith('.csv')) {
+        showToast('Please upload a CSV file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const posts = parseCSV(csv);
+        
+        if (posts.length === 0) {
+            showToast('No valid posts found in CSV', 'error');
+            return;
+        }
+        
+        displayUploadPreview(posts);
+    };
+    reader.readAsText(file);
+}
+
+function parseCSV(csv) {
+    const lines = csv.split('\n').filter(line => line.trim());
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    const posts = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        const post = {};
+        headers.forEach((header, index) => {
+            post[header] = values[index] ? values[index].trim().replace(/^"|"$/g, '') : '';
+        });
+        
+        if (post.platform && post.content) {
+            posts.push(post);
+        }
+    }
+    
+    return posts;
+}
+
+function displayUploadPreview(posts) {
+    const preview = document.getElementById('uploadPreview');
+    preview.style.display = 'block';
+    
+    // Count by platform
+    const counts = {
+        total: posts.length,
+        linkedin: posts.filter(p => p.platform.toLowerCase().includes('linkedin')).length,
+        twitter: posts.filter(p => p.platform.toLowerCase().includes('twitter')).length,
+        instagram: posts.filter(p => p.platform.toLowerCase().includes('instagram')).length
+    };
+    
+    document.getElementById('totalPosts').textContent = counts.total;
+    document.getElementById('linkedinPosts').textContent = counts.linkedin;
+    document.getElementById('twitterPosts').textContent = counts.twitter;
+    document.getElementById('instagramPosts').textContent = counts.instagram;
+    
+    document.getElementById('uploadBulkBtn').disabled = false;
+    
+    // Store posts for upload
+    window.bulkPostsData = posts;
+}
+
+// Upload Bulk Posts
+window.uploadBulkPosts = function() {
+    if (!window.bulkPostsData || window.bulkPostsData.length === 0) {
+        showToast('No posts to upload', 'error');
+        return;
+    }
+    
+    showToast(`Uploading ${window.bulkPostsData.length} posts...`, 'info');
+    
+    setTimeout(() => {
+        showToast('Bulk upload successful!', 'success');
+        console.log('Bulk upload:', window.bulkPostsData);
+        closeBulkUploadModal();
+        
+        // In production:
+        // POST /api/social-media/posts/bulk
+        // { posts: window.bulkPostsData }
+    }, 1500);
+};
+
+// Update event listeners for buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const createBtn = document.getElementById('createPostBtn');
+    if (createBtn) {
+        createBtn.addEventListener('click', openCreatePostModal);
+    }
+    
+    const bulkBtn = document.getElementById('bulkUploadBtn');
+    if (bulkBtn) {
+        bulkBtn.addEventListener('click', openBulkUploadModal);
+    }
+});
+
+// ===================================
+// QUEUE POST ACTIONS
+// ===================================
+
+// Dummy post data store
+const queuePosts = {
+    1: {
+        id: 1,
+        platforms: ['linkedin', 'twitter'],
+        content: '🚀 Excited to share our Q4 growth insights! We\'ve helped 50+ businesses automate their operations and save 20+ hours per week. Here\'s what we learned about scaling with AI...',
+        scheduledFor: '2024-12-26T14:00:00',
+        status: 'scheduled'
+    },
+    2: {
+        id: 2,
+        platforms: ['instagram'],
+        content: 'Behind the scenes at Bashua HQ 💼✨ Our team working hard to build the future of operations automation. Swipe to see our development process! #TechStartup #AIInnovation',
+        scheduledFor: '2024-12-26T17:30:00',
+        status: 'scheduled'
+    },
+    3: {
+        id: 3,
+        platforms: ['linkedin'],
+        content: `Here's how AI automation transformed our client's recruitment process:
+
+✅ 40% faster hiring
+✅ 60% cost reduction
+✅ Better candidate quality
+✅ Happier hiring managers
+
+Want to see how we can optimize your operations? Book a demo 👇`,
+        scheduledFor: '2024-12-27T10:00:00',
+        status: 'scheduled'
+    },
+    4: {
+        id: 4,
+        platforms: ['twitter'],
+        content: `Hot take: Manual operations in 2024 is like using a typewriter instead of a computer 🤯
+
+AI automation isn't the future—it's NOW.
+
+What operational task are you still doing manually? 👇`,
+        scheduledFor: '2024-12-27T15:00:00',
+        status: 'scheduled'
+    },
+    5: {
+        id: 5,
+        platforms: ['linkedin', 'twitter'],
+        content: '📊 New research: Companies using AI automation see an average ROI of 300% in the first year.\n\nBut here\'s what they don\'t tell you about implementing AI systems... [Thread 🧵]',
+        scheduledFor: '2024-12-30T09:00:00',
+        status: 'scheduled'
+    },
+    6: {
+        id: 6,
+        platforms: ['instagram'],
+        content: `Client spotlight 🌟 
+
+Meet Sarah, who went from spending 15 hours/week on admin tasks to zero with our AI systems.
+
+Now she focuses on what she does best: growing her business.
+
+Your success story could be next 💪 #ClientWins #Automation`,
+        scheduledFor: '2025-01-01T16:00:00',
+        status: 'scheduled'
+    }
+};
+
+let currentEditingPostId = null;
+let currentDeletingPostId = null;
+
+// Edit Post
+window.editPost = function(postId) {
+    const post = queuePosts[postId];
+    if (!post) {
+        showToast('Post not found', 'error');
+        return;
+    }
+    
+    currentEditingPostId = postId;
+    
+    // Populate modal with post data
+    document.getElementById('editPostContent').value = post.content;
+    
+    // Set platforms
+    document.querySelectorAll('input[name="edit-platform"]').forEach(checkbox => {
+        checkbox.checked = post.platforms.includes(checkbox.value);
+    });
+    
+    // Set schedule
+    const scheduledDate = new Date(post.scheduledFor);
+    document.getElementById('editScheduleDate').value = scheduledDate.toISOString().split('T')[0];
+    document.getElementById('editScheduleTime').value = scheduledDate.toTimeString().slice(0, 5);
+    
+    // Update character count
+    updateEditCharCount();
+    
+    // Open modal
+    document.getElementById('editPostModal').classList.add('active');
+};
+
+window.closeEditPostModal = function() {
+    document.getElementById('editPostModal').classList.remove('active');
+    currentEditingPostId = null;
+};
+
+window.saveEditedPost = function() {
+    if (!currentEditingPostId) return;
+    
+    const content = document.getElementById('editPostContent').value;
+    const platforms = Array.from(document.querySelectorAll('input[name="edit-platform"]:checked'))
+        .map(cb => cb.value);
+    const date = document.getElementById('editScheduleDate').value;
+    const time = document.getElementById('editScheduleTime').value;
+    
+    if (!content.trim()) {
+        showToast('Please enter post content', 'error');
+        return;
+    }
+    
+    if (platforms.length === 0) {
+        showToast('Please select at least one platform', 'error');
+        return;
+    }
+    
+    // Update post data
+    queuePosts[currentEditingPostId] = {
+        ...queuePosts[currentEditingPostId],
+        content,
+        platforms,
+        scheduledFor: `${date}T${time}:00`
+    };
+    
+    showToast('Post updated successfully!', 'success');
+    console.log('Updated post:', queuePosts[currentEditingPostId]);
+    
+    closeEditPostModal();
+    
+    // In production:
+    // PATCH /api/social-media/posts/:id
+    // { content, platforms, scheduledFor }
+};
+
+// Character counter for edit modal
+document.addEventListener('DOMContentLoaded', function() {
+    const editContent = document.getElementById('editPostContent');
+    if (editContent) {
+        editContent.addEventListener('input', updateEditCharCount);
+    }
+});
+
+function updateEditCharCount() {
+    const content = document.getElementById('editPostContent');
+    const count = document.getElementById('editCharCount');
+    const limit = document.getElementById('editCharLimit');
+    
+    if (content && count) {
+        const length = content.value.length;
+        count.textContent = length;
+        
+        // Get selected platforms
+        const platforms = Array.from(document.querySelectorAll('input[name="edit-platform"]:checked'))
+            .map(cb => cb.value);
+        
+        // Update limit based on platform
+        let maxLength = 3000;
+        if (platforms.includes('twitter') && !platforms.includes('linkedin')) {
+            maxLength = 280;
+        }
+        
+        limit.textContent = maxLength;
+        
+        if (length > maxLength) {
+            count.style.color = 'var(--error)';
+        } else {
+            count.style.color = 'var(--text-muted)';
+        }
+    }
+}
+
+// Preview Post
+window.previewPost = function(postId) {
+    const post = queuePosts[postId];
+    if (!post) {
+        showToast('Post not found', 'error');
+        return;
+    }
+    
+    currentEditingPostId = postId; // Store for edit from preview
+    
+    // Generate previews for each platform
+    const previewContainer = document.getElementById('previewPlatforms');
+    previewContainer.innerHTML = '';
+    
+    post.platforms.forEach(platform => {
+        const preview = createPlatformPreview(platform, post);
+        previewContainer.appendChild(preview);
+    });
+    
+    // Open modal
+    document.getElementById('previewPostModal').classList.add('active');
+};
+
+function createPlatformPreview(platform, post) {
+    const div = document.createElement('div');
+    div.className = 'platform-preview';
+    
+    const platformNames = {
+        linkedin: 'LinkedIn',
+        twitter: 'Twitter',
+        instagram: 'Instagram'
+    };
+    
+    const scheduledDate = new Date(post.scheduledFor);
+    const formattedDate = scheduledDate.toLocaleString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Calculate character count
+    const charCount = post.content.length;
+    let maxChars = 3000;
+    if (platform === 'twitter') maxChars = 280;
+    else if (platform === 'instagram') maxChars = 2200;
+    
+    const charWarning = charCount > maxChars ? 
+        `<span style="color: var(--error);">${charCount} / ${maxChars}</span>` :
+        `${charCount} / ${maxChars}`;
+    
+    div.innerHTML = `
+        <div class="platform-preview-header">
+            <div class="platform-preview-icon ${platform}">
+                ${getPlatformIcon(platform)}
+            </div>
+            <div class="platform-preview-name">${platformNames[platform]}</div>
+        </div>
+        <div class="platform-preview-content">${escapeHtml(post.content)}</div>
+        <div class="platform-preview-meta">
+            <div class="preview-meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                ${formattedDate}
+            </div>
+            <div class="preview-meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                ${charWarning} characters
+            </div>
+        </div>
+    `;
+    
+    return div;
+}
+
+function getPlatformIcon(platform) {
+    const icons = {
+        linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z"></path></svg>',
+        twitter: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>',
+        instagram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"></path></svg>'
+    };
+    return icons[platform] || '';
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+window.closePreviewPostModal = function() {
+    document.getElementById('previewPostModal').classList.remove('active');
+};
+
+window.editFromPreview = function() {
+    closePreviewPostModal();
+    if (currentEditingPostId) {
+        editPost(currentEditingPostId);
+    }
+};
+
+// Delete Post
+window.deletePost = function(postId) {
+    currentDeletingPostId = postId;
+    document.getElementById('deletePostModal').classList.add('active');
+};
+
+window.closeDeletePostModal = function() {
+    document.getElementById('deletePostModal').classList.remove('active');
+    currentDeletingPostId = null;
+};
+
+window.confirmDeletePost = function() {
+    if (!currentDeletingPostId) return;
+    
+    // Remove from data store
+    delete queuePosts[currentDeletingPostId];
+    
+    showToast('Post deleted successfully', 'success');
+    console.log('Deleted post:', currentDeletingPostId);
+    
+    closeDeletePostModal();
+    
+    // In production:
+    // DELETE /api/social-media/posts/:id
+    
+    // Optionally refresh the queue view
+    // refreshQueueView();
+};
+
+// ===================================
+// CONTENT LIBRARY FUNCTIONALITY
+// ===================================
+
+// Dummy content library data
+const contentLibrary = [
+    {
+        id: 1,
+        type: 'linkedin',
+        title: 'The Future of AI Automation in Business',
+        content: `🚀 The future of business operations is here, and it's powered by AI.
+
+Here's what I've learned after implementing AI automation for 50+ companies:
+
+1️⃣ Time Savings Are Real
+Our clients save an average of 20+ hours per week on repetitive tasks. That's an entire day back in your week.
+
+2️⃣ Quality Actually Improves
+Contrary to popular belief, automation doesn't mean sacrificing quality. Our systems maintain 99.8% accuracy while handling 10x the volume.
+
+3️⃣ Your Team Will Thank You
+When you remove soul-crushing busy work, your team can focus on what they do best: strategy, creativity, and relationship-building.
+
+4️⃣ ROI Comes Faster Than Expected
+Most companies see positive ROI within 3 months. Some in as little as 4 weeks.
+
+The question isn't whether to automate—it's what to automate first.
+
+What operational task is taking up most of your time? 👇
+
+#AIAutomation #BusinessOperations #Productivity`,
+        createdAt: '2024-12-20T10:30:00',
+        tone: 'Professional'
+    },
+    {
+        id: 2,
+        type: 'email',
+        title: 'Welcome Sequence - Email 1',
+        content: `Subject: Welcome to Bashua Operations! Here's what's next...
+
+Hi {{first_name}},
+
+Welcome aboard! 🎉
+
+I'm Toni, founder of Bashua Operations, and I'm thrilled you've joined us.
+
+Over the next few days, I'll be sending you some valuable insights on how to transform your operations with AI automation.
+
+But first, I want to understand your biggest challenges.
+
+Which of these sounds most like you?
+
+→ "I'm drowning in manual tasks"
+→ "My team is overwhelmed"
+→ "We're growing but can't keep up"
+→ "I want to scale without hiring"
+
+Simply reply to this email and let me know. I read every response personally.
+
+To your success,
+Toni Bashua
+Founder, Bashua Operations
+
+P.S. Check your inbox tomorrow for our guide: "5 Operations You Can Automate Today"`,
+        createdAt: '2024-12-18T14:20:00',
+        tone: 'Friendly'
+    },
+    {
+        id: 3,
+        type: 'blog',
+        title: 'Complete Guide to Operations Automation',
+        content: `# The Complete Guide to Operations Automation in 2024
+
+## Introduction
+
+Operations automation isn't just a buzzword—it's the competitive advantage that separates thriving businesses from those struggling to keep up.
+
+In this comprehensive guide, I'll walk you through everything you need to know about automating your business operations, from identifying opportunities to measuring ROI.
+
+## What is Operations Automation?
+
+Operations automation uses technology to perform repetitive tasks without human intervention. But it's more than just setting up some software—it's about fundamentally rethinking how work gets done.
+
+## The 5 Pillars of Successful Automation
+
+### 1. Process Mapping
+Before you automate anything, you need to understand your current processes...
+
+### 2. Tool Selection
+The right tools make all the difference...
+
+### 3. Implementation Strategy
+How you roll out automation matters...
+
+### 4. Team Training
+Your team needs to embrace the change...
+
+### 5. Continuous Optimization
+Automation isn't "set it and forget it"...
+
+## Conclusion
+
+The businesses that thrive in the next decade will be those that embrace intelligent automation today. The question is: will you be one of them?`,
+        createdAt: '2024-12-15T09:00:00',
+        tone: 'Educational'
+    },
+    {
+        id: 4,
+        type: 'twitter',
+        title: 'AI Automation Thread',
+        content: `🧵 Thread: The 5 operations you should automate FIRST in your business
+
+Most founders waste time automating the wrong things.
+
+Here's the priority order that actually works:
+
+1/6`,
+        createdAt: '2024-12-22T16:45:00',
+        tone: 'Casual'
+    },
+    {
+        id: 5,
+        type: 'ad',
+        title: 'LinkedIn Ad - Free Audit Offer',
+        content: `⚡ Still Doing Manual Operations in 2024?
+
+We'll show you exactly which tasks you can automate to save 20+ hours per week.
+
+→ Free Operations Audit (Worth £500)
+→ Custom Automation Roadmap
+→ ROI Calculator
+→ Zero commitment required
+
+50 businesses have already claimed their audit this month.
+
+Only 10 spots left.
+
+👉 Book your free audit now
+
+[Get Your Free Audit]
+
+*Limited to UK-based businesses with 10+ employees`,
+        createdAt: '2024-12-19T11:15:00',
+        tone: 'Persuasive'
+    },
+    {
+        id: 6,
+        type: 'linkedin',
+        title: 'Client Success Story - Recruitment Agency',
+        content: `📊 Case Study: How a recruitment agency cut hiring time by 40% with AI
+
+Client: UK-based recruitment agency (confidential)
+Challenge: Manual CV screening taking 15+ hours per week
+Solution: Our AI-powered CV analysis system
+
+Results after 90 days:
+✅ 40% faster time-to-hire
+✅ 60% reduction in screening costs
+✅ 85% improvement in candidate quality scores
+✅ Team morale significantly improved
+
+The best part? Their recruiters now spend time on what they do best: building relationships and closing placements.
+
+Not processing endless spreadsheets.
+
+Want similar results for your recruitment process?
+
+DM me "CASE STUDY" and I'll send you the full breakdown.
+
+#Recruitment #AIAutomation #CaseStudy`,
+        createdAt: '2024-12-21T13:30:00',
+        tone: 'Professional'
+    },
+    {
+        id: 7,
+        type: 'email',
+        title: 'Re-engagement Campaign - Email 3',
+        content: `Subject: We miss you! Here's 20% off to come back...
+
+Hi {{first_name}},
+
+I noticed you haven't logged into Bashua Operations in a while.
+
+Did something come up? Or are we missing something you need?
+
+I'd love to hear your honest feedback.
+
+But I also want to make it easy for you to give us another shot:
+
+→ 20% off your next 3 months
+→ Free 1-on-1 onboarding session
+→ Priority support for 30 days
+
+No strings attached. Just click below to reactivate:
+
+[Claim My 20% Discount]
+
+Not interested? I understand. You can unsubscribe at the bottom of this email.
+
+Best regards,
+Toni
+
+P.S. This offer expires in 48 hours`,
+        createdAt: '2024-12-17T10:00:00',
+        tone: 'Friendly'
+    },
+    {
+        id: 8,
+        type: 'twitter',
+        title: 'Hot Take - Manual Operations',
+        content: `Hot take: 
+
+Manual operations in 2024 is like using a typewriter instead of a computer.
+
+Sure, you CAN do it.
+
+But why would you?
+
+AI automation isn't the future.
+
+It's NOW. 🤯`,
+        createdAt: '2024-12-23T15:20:00',
+        tone: 'Bold'
+    }
+];
+
+let currentViewingContent = null;
+let filteredLibrary = [...contentLibrary];
+
+// Open Content Library
+window.openContentLibrary = function() {
+    renderLibrary();
+    document.getElementById('contentLibraryModal').classList.add('active');
+};
+
+window.closeContentLibrary = function() {
+    document.getElementById('contentLibraryModal').classList.remove('active');
+};
+
+// Render Library Grid
+function renderLibrary() {
+    const grid = document.getElementById('libraryGrid');
+    const empty = document.getElementById('libraryEmpty');
+    
+    if (filteredLibrary.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+    
+    grid.style.display = 'grid';
+    empty.style.display = 'none';
+    
+    grid.innerHTML = filteredLibrary.map(item => createLibraryItem(item)).join('');
+}
+
+function createLibraryItem(item) {
+    const date = new Date(item.createdAt);
+    const formattedDate = date.toLocaleDateString('en-GB', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+    });
+    
+    const preview = item.content.substring(0, 150) + (item.content.length > 150 ? '...' : '');
+    
+    const typeNames = {
+        linkedin: 'LinkedIn',
+        email: 'Email',
+        blog: 'Blog',
+        twitter: 'Twitter',
+        ad: 'Ad Copy'
+    };
+    
+    return `
+        <div class="library-item" onclick="viewContent(${item.id})">
+            <div class="library-item-header">
+                <div>
+                    <div class="library-item-title">${escapeHtml(item.title)}</div>
+                </div>
+                <span class="library-item-type ${item.type}">${typeNames[item.type]}</span>
+            </div>
+            <div class="library-item-preview">${escapeHtml(preview)}</div>
+            <div class="library-item-footer">
+                <div class="library-item-date">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    ${formattedDate}
+                </div>
+                <div class="library-item-actions">
+                    <button class="library-action-btn" onclick="event.stopPropagation(); duplicateContent(${item.id})" title="Duplicate">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                    <button class="library-action-btn delete" onclick="event.stopPropagation(); deleteContent(${item.id})" title="Delete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// View Content
+window.viewContent = function(contentId) {
+    const content = contentLibrary.find(item => item.id === contentId);
+    if (!content) return;
+    
+    currentViewingContent = content;
+    
+    const typeNames = {
+        linkedin: 'LinkedIn Post',
+        email: 'Email',
+        blog: 'Blog Post',
+        twitter: 'Twitter/X Post',
+        ad: 'Ad Copy'
+    };
+    
+    const date = new Date(content.createdAt);
+    const formattedDate = date.toLocaleDateString('en-GB', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    });
+    
+    document.getElementById('viewContentTitle').textContent = content.title;
+    document.getElementById('viewContentType').textContent = typeNames[content.type];
+    document.getElementById('viewContentType').className = `content-type-badge ${content.type}`;
+    document.getElementById('viewContentDate').textContent = `Created ${formattedDate}`;
+    document.getElementById('viewContentBody').textContent = content.content;
+    
+    document.getElementById('viewContentModal').classList.add('active');
+};
+
+window.closeViewContent = function() {
+    document.getElementById('viewContentModal').classList.remove('active');
+    currentViewingContent = null;
+};
+
+// Copy to Clipboard
+window.copyContentToClipboard = function() {
+    if (!currentViewingContent) return;
+    
+    navigator.clipboard.writeText(currentViewingContent.content).then(() => {
+        showToast('Content copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = currentViewingContent.content;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Content copied to clipboard!', 'success');
+    });
+};
+
+// Edit Content from View
+window.editContentFromView = function() {
+    if (!currentViewingContent) return;
+    
+    // Close view modal
+    closeViewContent();
+    closeContentLibrary();
+    
+    // Populate content creator form
+    // In a real implementation, you'd populate the form fields here
+    showToast('Edit functionality - populate creator form with content', 'info');
+    
+    console.log('Edit content:', currentViewingContent);
+};
+
+// Duplicate Content
+window.duplicateContent = function(contentId) {
+    const content = contentLibrary.find(item => item.id === contentId);
+    if (!content) return;
+    
+    const newContent = {
+        ...content,
+        id: Math.max(...contentLibrary.map(c => c.id)) + 1,
+        title: `${content.title} (Copy)`,
+        createdAt: new Date().toISOString()
+    };
+    
+    contentLibrary.unshift(newContent);
+    filteredLibrary = [...contentLibrary];
+    
+    renderLibrary();
+    showToast('Content duplicated successfully!', 'success');
+    
+    console.log('Duplicated content:', newContent);
+};
+
+// Delete Content
+window.deleteContent = function(contentId) {
+    if (!confirm('Are you sure you want to delete this content? This action cannot be undone.')) {
+        return;
+    }
+    
+    const index = contentLibrary.findIndex(item => item.id === contentId);
+    if (index > -1) {
+        contentLibrary.splice(index, 1);
+        filteredLibrary = [...contentLibrary];
+        renderLibrary();
+        showToast('Content deleted successfully', 'success');
+    }
+};
+
+// Filter Library
+document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('libraryTypeFilter');
+    const sortFilter = document.getElementById('librarySortFilter');
+    const searchInput = document.getElementById('librarySearch');
+    
+    if (typeFilter) {
+        typeFilter.addEventListener('change', filterLibrary);
+    }
+    
+    if (sortFilter) {
+        sortFilter.addEventListener('change', filterLibrary);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterLibrary);
+    }
+    
+    // View Library button
+    const viewLibraryBtn = document.getElementById('viewLibraryBtn');
+    if (viewLibraryBtn) {
+        viewLibraryBtn.addEventListener('click', openContentLibrary);
+    }
+});
+
+function filterLibrary() {
+    const typeFilter = document.getElementById('libraryTypeFilter').value;
+    const sortFilter = document.getElementById('librarySortFilter').value;
+    const searchTerm = document.getElementById('librarySearch').value.toLowerCase();
+    
+    // Filter by type
+    filteredLibrary = typeFilter === 'all' 
+        ? [...contentLibrary]
+        : contentLibrary.filter(item => item.type === typeFilter);
+    
+    // Filter by search
+    if (searchTerm) {
+        filteredLibrary = filteredLibrary.filter(item => 
+            item.title.toLowerCase().includes(searchTerm) ||
+            item.content.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Sort
+    if (sortFilter === 'recent') {
+        filteredLibrary.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortFilter === 'oldest') {
+        filteredLibrary.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } else if (sortFilter === 'title') {
+        filteredLibrary.sort((a, b) => a.title.localeCompare(b.title));
+    }
+    
+    renderLibrary();
+}
+
+// ===================================
+// EMAIL CAMPAIGNS FUNCTIONALITY
+// ===================================
+
+// Dummy campaign data
+const emailCampaigns = {
+    1: {
+        id: 1,
+        name: 'Q1 Product Launch',
+        subject: '🎉 Introducing Our Biggest Update Yet',
+        content: `Hi {{first_name}},
+
+We're excited to announce our Q1 product launch!
+
+Here's what's new:
+• AI-powered content generation
+• Advanced analytics dashboard
+• Multi-platform scheduling
+• Team collaboration tools
+
+Get started today and transform your operations.
+
+Best regards,
+Toni Bashua
+Bashua Operations`,
+        status: 'active',
+        recipients: 2847,
+        sent: 2847,
+        opened: 712,
+        clicked: 142,
+        conversions: 34,
+        startedAt: '2024-12-10T09:00:00'
+    },
+    2: {
+        id: 2,
+        name: 'Weekly Newsletter',
+        subject: '📰 This Week in AI Automation',
+        content: `Weekly insights and tips for optimizing your business operations.`,
+        status: 'active',
+        recipients: 4192,
+        sent: 4192,
+        opened: 1089,
+        clicked: 209,
+        conversions: 63,
+        startedAt: '2024-12-01T10:00:00'
+    },
+    3: {
+        id: 3,
+        name: 'Holiday Sale Announcement',
+        subject: '🎄 Holiday Sale: Up to 50% Off Everything!',
+        content: `Don't miss our biggest sale of the year!\n\nUse code HOLIDAY50 at checkout.`,
+        status: 'draft',
+        recipients: 0,
+        editedAt: '2024-12-26T10:30:00'
+    },
+    4: {
+        id: 4,
+        name: 'Year-End Review',
+        subject: '2024: A Year of Innovation',
+        content: `Thank you for an amazing year! Here's what we accomplished together...`,
+        status: 'scheduled',
+        recipients: 5421,
+        scheduledFor: '2024-12-31T10:00:00'
+    },
+    5: {
+        id: 5,
+        name: 'November Newsletter',
+        subject: '📊 November Performance Report',
+        content: `Your monthly performance summary is here!`,
+        status: 'completed',
+        recipients: 3891,
+        sent: 3891,
+        opened: 934,
+        clicked: 187,
+        conversions: 74,
+        sentAt: '2024-11-28T09:00:00'
+    }
+};
+
+let currentCampaignId = null;
+
+// View Campaign Report
+window.viewEmailReport = function(campaignId) {
+    const campaign = emailCampaigns[campaignId];
+    if (!campaign) return;
+    
+    currentCampaignId = campaignId;
+    
+    // Update modal content
+    document.getElementById('reportCampaignName').textContent = campaign.name;
+    document.getElementById('reportCampaignStatus').textContent = campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1);
+    document.getElementById('reportCampaignStatus').className = `campaign-status-badge ${campaign.status}`;
+    
+    const date = new Date(campaign.startedAt || campaign.sentAt);
+    document.getElementById('reportCampaignDate').textContent = `Started ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    
+    // Update stats
+    document.getElementById('reportSent').textContent = campaign.sent.toLocaleString();
+    document.getElementById('reportOpened').textContent = `${((campaign.opened / campaign.sent) * 100).toFixed(1)}%`;
+    document.getElementById('reportClicked').textContent = `${((campaign.clicked / campaign.sent) * 100).toFixed(1)}%`;
+    document.getElementById('reportConversions').textContent = `${((campaign.conversions / campaign.sent) * 100).toFixed(1)}%`;
+    
+    // Render engagement chart
+    renderEngagementChart();
+    
+    document.getElementById('campaignReportModal').classList.add('active');
+};
+
+window.closeCampaignReport = function() {
+    document.getElementById('campaignReportModal').classList.remove('active');
+    currentCampaignId = null;
+};
+
+function renderEngagementChart() {
+    const canvas = document.getElementById('engagementChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    // Dummy engagement data over time
+    const data = [20, 45, 68, 82, 91, 95, 97, 98, 99, 100];
+    const max = 100;
+    const padding = 40;
+    const chartWidth = width - padding * 2;
+    const chartHeight = height - padding * 2;
+    
+    // Draw grid
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = padding + (chartHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+    }
+    
+    // Draw line
+    ctx.strokeStyle = '#8b5cf6';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    data.forEach((value, index) => {
+        const x = padding + (chartWidth / (data.length - 1)) * index;
+        const y = padding + chartHeight - (value / max) * chartHeight;
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    ctx.stroke();
+    
+    // Fill area
+    const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
+    gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
+    gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    data.forEach((value, index) => {
+        const x = padding + (chartWidth / (data.length - 1)) * index;
+        const y = padding + chartHeight - (value / max) * chartHeight;
+        if (index === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    });
+    ctx.lineTo(width - padding, height - padding);
+    ctx.lineTo(padding, height - padding);
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Export Campaign Report
+window.exportCampaignReport = function() {
+    showToast('Generating PDF report...', 'info');
+    
+    setTimeout(() => {
+        showToast('Report downloaded successfully!', 'success');
+        console.log('Export campaign report:', currentCampaignId);
+        // In production: generate PDF with charts and metrics
+    }, 1500);
+};
+
+// Duplicate Campaign
+window.duplicateCampaign = function(campaignId) {
+    const campaign = emailCampaigns[campaignId];
+    if (!campaign) return;
+    
+    const newId = Math.max(...Object.keys(emailCampaigns).map(Number)) + 1;
+    emailCampaigns[newId] = {
+        ...campaign,
+        id: newId,
+        name: `${campaign.name} (Copy)`,
+        status: 'draft',
+        recipients: 0,
+        sent: 0,
+        opened: 0,
+        clicked: 0,
+        conversions: 0,
+        editedAt: new Date().toISOString()
+    };
+    
+    showToast('Campaign duplicated successfully!', 'success');
+    console.log('Duplicated campaign:', emailCampaigns[newId]);
+    
+    // In production: POST /api/email-campaigns/:id/duplicate
+};
+
+// Pause Campaign
+window.pauseEmailCampaign = function(campaignId) {
+    if (!confirm('Pause this campaign? No more emails will be sent.')) return;
+    
+    const campaign = emailCampaigns[campaignId];
+    if (campaign) {
+        campaign.status = 'paused';
+        showToast('Campaign paused', 'success');
+        console.log('Paused campaign:', campaignId);
+        // In production: POST /api/email-campaigns/:id/pause
+    }
+};
+
+// Resume Campaign
+window.resumeEmailCampaign = function(campaignId) {
+    const campaign = emailCampaigns[campaignId];
+    if (campaign) {
+        campaign.status = 'active';
+        showToast('Campaign resumed', 'success');
+        console.log('Resumed campaign:', campaignId);
+        // In production: POST /api/email-campaigns/:id/resume
+    }
+};
+
+// Edit Campaign
+window.editCampaign = function(campaignId) {
+    const campaign = emailCampaigns[campaignId];
+    if (!campaign) return;
+    
+    currentCampaignId = campaignId;
+    
+    // Populate form
+    document.getElementById('editCampaignName').value = campaign.name;
+    document.getElementById('editCampaignSubject').value = campaign.subject;
+    document.getElementById('editCampaignContent').value = campaign.content;
+    
+    if (campaign.scheduledFor) {
+        const date = new Date(campaign.scheduledFor);
+        document.getElementById('editCampaignDate').value = date.toISOString().split('T')[0];
+        document.getElementById('editCampaignTime').value = date.toTimeString().slice(0, 5);
+    }
+    
+    document.getElementById('editCampaignModal').classList.add('active');
+};
+
+window.closeEditCampaign = function() {
+    document.getElementById('editCampaignModal').classList.remove('active');
+    currentCampaignId = null;
+};
+
+window.saveCampaignEdit = function() {
+    if (!currentCampaignId) return;
+    
+    const campaign = emailCampaigns[currentCampaignId];
+    if (!campaign) return;
+    
+    campaign.name = document.getElementById('editCampaignName').value;
+    campaign.subject = document.getElementById('editCampaignSubject').value;
+    campaign.content = document.getElementById('editCampaignContent').value;
+    
+    const date = document.getElementById('editCampaignDate').value;
+    const time = document.getElementById('editCampaignTime').value;
+    if (date && time) {
+        campaign.scheduledFor = `${date}T${time}:00`;
+    }
+    
+    showToast('Campaign updated successfully!', 'success');
+    console.log('Updated campaign:', campaign);
+    closeEditCampaign();
+    
+    // In production: PATCH /api/email-campaigns/:id
+};
+
+// Preview Campaign
+window.previewEmail = function(campaignId) {
+    const campaign = emailCampaigns[campaignId];
+    if (!campaign) return;
+    
+    currentCampaignId = campaignId;
+    
+    document.getElementById('previewFrom').textContent = 'Toni Bashua <toni@bashua.com>';
+    document.getElementById('previewSubject').textContent = campaign.subject;
+    document.getElementById('previewContent').textContent = campaign.content.replace(/{{first_name}}/g, 'John');
+    
+    document.getElementById('previewCampaignModal').classList.add('active');
+};
+
+window.closePreviewCampaign = function() {
+    document.getElementById('previewCampaignModal').classList.remove('active');
+};
+
+// Send Test Email
+window.sendTestEmail = function() {
+    closePreviewCampaign();
+    document.getElementById('sendTestModal').classList.add('active');
+};
+
+window.closeSendTest = function() {
+    document.getElementById('sendTestModal').classList.remove('active');
+    document.getElementById('testEmailAddress').value = '';
+};
+
+window.confirmSendTest = function() {
+    const email = document.getElementById('testEmailAddress').value;
+    
+    if (!email) {
+        showToast('Please enter an email address', 'error');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    showToast(`Test email sent to ${email}!`, 'success');
+    console.log('Send test email to:', email, 'Campaign:', currentCampaignId);
+    closeSendTest();
+    
+    // In production: POST /api/email-campaigns/:id/send-test { email }
+};
+
+// Send Campaign Now
+window.sendNowEmail = function(campaignId) {
+    if (!confirm('Send this campaign now to all recipients?')) return;
+    
+    const campaign = emailCampaigns[campaignId];
+    if (campaign) {
+        campaign.status = 'active';
+        showToast('Campaign sending now...', 'success');
+        console.log('Send campaign now:', campaignId);
+        // In production: POST /api/email-campaigns/:id/send
+    }
+};
+
+// Cancel Scheduled Campaign
+window.cancelScheduled = function(campaignId) {
+    if (!confirm('Cancel this scheduled campaign? It will be moved to drafts.')) return;
+    
+    const campaign = emailCampaigns[campaignId];
+    if (campaign) {
+        campaign.status = 'draft';
+        delete campaign.scheduledFor;
+        showToast('Campaign moved to drafts', 'success');
+        console.log('Cancelled scheduled campaign:', campaignId);
+        // In production: POST /api/email-campaigns/:id/cancel
+    }
+};
+
+// Helper function for email validation (if not already defined)
+if (typeof validateEmail === 'undefined') {
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+}
+
+// ===================================
+// LEAD PIPELINE FUNCTIONALITY
+// ===================================
+
+// Add Lead Modal
+window.openAddLead = function() {
+    document.getElementById('addLeadModal').classList.add('active');
+};
+
+window.closeAddLead = function() {
+    document.getElementById('addLeadModal').classList.remove('active');
+    document.getElementById('addLeadForm').reset();
+};
+
+window.saveNewLead = function() {
+    // Validate required fields
+    const firstName = document.getElementById('leadFirstName').value.trim();
+    const lastName = document.getElementById('leadLastName').value.trim();
+    const email = document.getElementById('leadEmail').value.trim();
+    const company = document.getElementById('leadCompany').value.trim();
+    
+    if (!firstName || !lastName || !email || !company) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    // Collect lead data
+    const leadData = {
+        firstName,
+        lastName,
+        email,
+        phone: document.getElementById('leadPhone').value.trim(),
+        company,
+        title: document.getElementById('leadTitle').value.trim(),
+        industry: document.getElementById('leadIndustry').value,
+        source: document.getElementById('leadSource').value,
+        value: document.getElementById('leadValue').value,
+        stage: document.getElementById('leadStage').value,
+        notes: document.getElementById('leadNotes').value.trim(),
+        createdAt: new Date().toISOString()
+    };
+    
+    showToast('Lead added successfully!', 'success');
+    console.log('New lead:', leadData);
+    
+    closeAddLead();
+    
+    // In production:
+    // POST /api/leads
+    // { ...leadData }
+    // Then refresh the pipeline view
+};
+
+// Import Leads Modal
+let importedLeadsData = null;
+
+window.openImportLeads = function() {
+    document.getElementById('importLeadsModal').classList.add('active');
+};
+
+window.closeImportLeads = function() {
+    document.getElementById('importLeadsModal').classList.remove('active');
+    resetImportForm();
+};
+
+function resetImportForm() {
+    document.getElementById('leadsFileUpload').value = '';
+    document.getElementById('importLeadsPreview').style.display = 'none';
+    document.getElementById('importLeadsBtn').disabled = true;
+    importedLeadsData = null;
+}
+
+// Download Template
+window.downloadLeadTemplate = function() {
+    const csvContent = `first_name,last_name,email,phone,company,title,industry,source,value,notes
+John,Smith,john.smith@example.com,+44 20 1234 5678,Acme Corp,CEO,technology,linkedin,50000,Interested in automation
+Sarah,Johnson,sarah.j@techco.com,+44 20 9876 5432,TechCo Ltd,CTO,technology,referral,75000,Referred by existing client
+Michael,Brown,m.brown@retailltd.com,+44 161 234 5678,Retail Ltd,Operations Manager,retail,website,25000,Downloaded whitepaper
+Emma,Wilson,emma.w@finance.com,+44 131 987 6543,Finance Solutions,Director,finance,event,100000,Met at conference
+David,Taylor,david.t@healthcare.org,+44 20 5555 1234,Healthcare Org,Head of IT,healthcare,cold-outreach,45000,Interested in demo`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lead-import-template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    showToast('Template downloaded!', 'success');
+};
+
+// Handle File Upload
+document.addEventListener('DOMContentLoaded', function() {
+    const fileUpload = document.getElementById('leadsFileUpload');
+    if (fileUpload) {
+        fileUpload.addEventListener('change', handleLeadsFileUpload);
+    }
+    
+    // Drag and drop
+    const uploadArea = document.getElementById('importUploadArea');
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--brown)';
+            uploadArea.style.background = 'rgba(156, 123, 105, 0.05)';
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '';
+            uploadArea.style.background = '';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '';
+            uploadArea.style.background = '';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.csv')) {
+                    processLeadsFile(file);
+                } else {
+                    showToast('Please upload a CSV file', 'error');
+                }
+            }
+        });
+    }
+    
+    // Add Lead button
+    const addLeadBtn = document.getElementById('addLeadBtn');
+    if (addLeadBtn) {
+        addLeadBtn.addEventListener('click', openAddLead);
+    }
+    
+    // Import Leads button
+    const importLeadsBtn = document.getElementById('importLeadsBtn');
+    if (importLeadsBtn) {
+        importLeadsBtn.addEventListener('click', openImportLeads);
+    }
+});
+
+function handleLeadsFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.name.endsWith('.csv')) {
+        showToast('Please upload a CSV file', 'error');
+        return;
+    }
+    
+    processLeadsFile(file);
+}
+
+function processLeadsFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const leads = parseLeadsCSV(csv);
+        
+        if (leads.length === 0) {
+            showToast('No valid leads found in CSV', 'error');
+            return;
+        }
+        
+        displayLeadsImportPreview(leads);
+    };
+    reader.readAsText(file);
+}
+
+function parseLeadsCSV(csv) {
+    const lines = csv.split('\n').filter(line => line.trim());
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    const leads = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const lead = {};
+        
+        headers.forEach((header, index) => {
+            if (values[index]) {
+                lead[header] = values[index].trim();
+            }
+        });
+        
+        // Validate required fields
+        if (lead.email && lead.first_name && lead.last_name && lead.company) {
+            lead.valid = validateEmail(lead.email);
+            lead.duplicate = false; // In production, check against existing leads
+            leads.push(lead);
+        }
+    }
+    
+    return leads;
+}
+
+function parseCSVLine(line) {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            values.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    values.push(current);
+    
+    return values.map(v => v.replace(/^"|"$/g, ''));
+}
+
+function displayLeadsImportPreview(leads) {
+    importedLeadsData = leads;
+    
+    // Calculate stats
+    const total = leads.length;
+    const valid = leads.filter(l => l.valid).length;
+    const invalid = total - valid;
+    const duplicates = leads.filter(l => l.duplicate).length;
+    
+    // Update stats
+    document.getElementById('totalLeadsCount').textContent = total;
+    document.getElementById('validLeadsCount').textContent = valid;
+    document.getElementById('invalidLeadsCount').textContent = invalid;
+    document.getElementById('duplicateLeadsCount').textContent = duplicates;
+    
+    // Field mapping
+    const headers = Object.keys(leads[0]).filter(k => k !== 'valid' && k !== 'duplicate');
+    const fieldMapping = {
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'email': 'Email',
+        'phone': 'Phone',
+        'company': 'Company',
+        'title': 'Job Title',
+        'industry': 'Industry',
+        'source': 'Lead Source',
+        'value': 'Lead Value',
+        'notes': 'Notes'
+    };
+    
+    const mappingGrid = document.getElementById('fieldMappingGrid');
+    mappingGrid.innerHTML = headers.map(header => `
+        <div class="mapping-row">
+            <div class="mapping-csv-field">${header}</div>
+            <div class="mapping-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+            <div class="mapping-crm-field">${fieldMapping[header] || header}</div>
+        </div>
+    `).join('');
+    
+    // Sample data table
+    const sampleLeads = leads.slice(0, 3);
+    const tableHtml = `
+        <table>
+            <thead>
+                <tr>
+                    ${headers.map(h => `<th>${fieldMapping[h] || h}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
+                ${sampleLeads.map(lead => `
+                    <tr>
+                        ${headers.map(h => `<td>${escapeHtml(lead[h] || '')}</td>`).join('')}
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.getElementById('sampleDataTable').innerHTML = tableHtml;
+    
+    // Show preview
+    document.getElementById('importLeadsPreview').style.display = 'block';
+    
+    // Enable import button
+    document.getElementById('importLeadsBtn').disabled = valid === 0;
+    document.getElementById('importCountBadge').textContent = valid;
+}
+
+// Confirm Import
+window.confirmImportLeads = function() {
+    if (!importedLeadsData) return;
+    
+    const validLeads = importedLeadsData.filter(l => l.valid && !l.duplicate);
+    
+    if (validLeads.length === 0) {
+        showToast('No valid leads to import', 'error');
+        return;
+    }
+    
+    showToast(`Importing ${validLeads.length} leads...`, 'info');
+    
+    setTimeout(() => {
+        showToast(`Successfully imported ${validLeads.length} leads!`, 'success');
+        console.log('Imported leads:', validLeads);
+        closeImportLeads();
+        
+        // In production:
+        // POST /api/leads/import
+        // { leads: validLeads }
+        // Then refresh the pipeline view
+    }, 2000);
+};
+
+// ===================================
+// OUTREACH MANAGER FUNCTIONALITY
+// ===================================
+
+// Dummy outreach campaign data
+const outreachCampaigns = {
+    1: {
+        id: 1,
+        name: 'Tech Founder Outreach Q1',
+        targetAudience: 'Tech Founders & CTOs',
+        totalRecipients: 850,
+        sequenceSteps: 4,
+        channel: 'Email + LinkedIn',
+        status: 'active',
+        sent: 347,
+        opened: 111,
+        replied: 28,
+        booked: 12,
+        startedAt: '2024-12-15T09:00:00',
+        steps: [
+            {
+                number: 1,
+                title: 'Initial Introduction',
+                timing: 'Day 1',
+                channel: 'Email',
+                sent: 347,
+                opened: 111,
+                replied: 15,
+                subject: 'Quick question about [Company]\'s operations',
+                content: 'Hi {{first_name}},\n\nI noticed [Company] is scaling fast in the [industry] space.\n\nWe\'ve helped similar companies reduce operational costs by 40% with AI automation.\n\nWould you be open to a 15-min call to explore if this could help [Company]?\n\nBest,\nToni'
+            },
+            {
+                number: 2,
+                title: 'LinkedIn Connection',
+                timing: 'Day 3',
+                channel: 'LinkedIn',
+                sent: 236,
+                opened: 89,
+                replied: 8,
+                content: 'Hi {{first_name}}, I sent you an email about AI automation for [Company]. Would love to connect and share some insights that might be valuable for your operations.'
+            },
+            {
+                number: 3,
+                title: 'Value-Add Follow Up',
+                timing: 'Day 7',
+                channel: 'Email',
+                sent: 198,
+                opened: 76,
+                replied: 4,
+                subject: 'Case study: How [Similar Company] saved £200K',
+                content: 'Hi {{first_name}},\n\nI wanted to share a quick case study of how a company similar to [Company] reduced their operational costs by £200K annually.\n\nThey automated:\n• Lead qualification\n• Customer onboarding\n• Report generation\n\nAll without adding headcount.\n\nInterested in seeing how this applies to [Company]?\n\nBest,\nToni'
+            },
+            {
+                number: 4,
+                title: 'Final Touch',
+                timing: 'Day 14',
+                channel: 'Email',
+                sent: 142,
+                opened: 54,
+                replied: 1,
+                subject: 'Last chance: Free operations audit',
+                content: 'Hi {{first_name}},\n\nI\'ll keep this brief.\n\nWe\'re offering 10 free operations audits this month to companies like [Company].\n\nIf you\'re interested, reply "YES" and I\'ll send the details.\n\nNo hard sell, just actionable insights.\n\nBest,\nToni'
+            }
+        ],
+        recentActivity: [
+            {
+                type: 'booked',
+                title: 'Meeting Booked',
+                description: 'Sarah Thompson (TechCo) booked a demo call',
+                time: '2 hours ago'
+            },
+            {
+                type: 'replied',
+                title: 'Positive Reply',
+                description: 'Michael Chen (InnovateLab) replied: "Interested, let\'s talk"',
+                time: '4 hours ago'
+            },
+            {
+                type: 'opened',
+                title: 'Email Opened',
+                description: '23 recipients opened Step 2 email',
+                time: '6 hours ago'
+            },
+            {
+                type: 'sent',
+                title: 'Sequence Step Sent',
+                description: 'Step 3 sent to 45 recipients',
+                time: '8 hours ago'
+            },
+            {
+                type: 'replied',
+                title: 'Reply Received',
+                description: 'Emma Wilson (FinanceCo) requested more information',
+                time: '1 day ago'
+            }
+        ]
+    },
+    2: {
+        id: 2,
+        name: 'Healthcare Provider Campaign',
+        targetAudience: 'Healthcare Administrators',
+        totalRecipients: 620,
+        sequenceSteps: 3,
+        channel: 'Email',
+        status: 'active',
+        sent: 412,
+        opened: 157,
+        replied: 31,
+        booked: 8,
+        startedAt: '2024-12-01T10:00:00',
+        steps: [],
+        recentActivity: []
+    },
+    3: {
+        id: 3,
+        name: 'E-commerce Automation Series',
+        targetAudience: 'E-commerce Business Owners',
+        totalRecipients: 1240,
+        sequenceSteps: 5,
+        channel: 'Email + LinkedIn',
+        status: 'active',
+        sent: 892,
+        opened: 285,
+        replied: 52,
+        booked: 18,
+        startedAt: '2024-11-20T09:00:00',
+        steps: [],
+        recentActivity: []
+    }
+};
+
+let currentOutreachCampaignId = null;
+
+// View Campaign Details
+window.viewOutreachDetails = function(campaignId) {
+    const campaign = outreachCampaigns[campaignId];
+    if (!campaign) {
+        showToast('Campaign not found', 'error');
+        return;
+    }
+    
+    currentOutreachCampaignId = campaignId;
+    
+    // Update header
+    document.getElementById('outreachCampaignName').textContent = campaign.name;
+    document.getElementById('outreachCampaignStatus').textContent = campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1);
+    document.getElementById('outreachCampaignStatus').className = `campaign-status-badge ${campaign.status}`;
+    
+    const date = new Date(campaign.startedAt);
+    document.getElementById('outreachCampaignDate').textContent = `Started ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    
+    // Update overview
+    document.getElementById('outreachTargetAudience').textContent = campaign.targetAudience;
+    document.getElementById('outreachTotalRecipients').textContent = campaign.totalRecipients.toLocaleString();
+    document.getElementById('outreachSequenceSteps').textContent = `${campaign.sequenceSteps} emails`;
+    document.getElementById('outreachChannel').textContent = campaign.channel;
+    
+    // Update metrics
+    document.getElementById('outreachSent').textContent = campaign.sent.toLocaleString();
+    document.getElementById('outreachOpened').textContent = `${Math.round((campaign.opened / campaign.sent) * 100)}%`;
+    document.getElementById('outreachReplied').textContent = `${Math.round((campaign.replied / campaign.sent) * 100)}%`;
+    document.getElementById('outreachBooked').textContent = campaign.booked;
+    
+    // Render sequence steps
+    renderSequenceSteps(campaign.steps);
+    
+    // Render recent activity
+    renderRecentActivity(campaign.recentActivity);
+    
+    document.getElementById('outreachDetailsModal').classList.add('active');
+};
+
+window.closeOutreachDetails = function() {
+    document.getElementById('outreachDetailsModal').classList.remove('active');
+    currentOutreachCampaignId = null;
+};
+
+function renderSequenceSteps(steps) {
+    const container = document.getElementById('sequenceStepsList');
+    
+    if (!steps || steps.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No sequence steps configured</p>';
+        return;
+    }
+    
+    container.innerHTML = steps.map(step => {
+        const openRate = step.sent > 0 ? Math.round((step.opened / step.sent) * 100) : 0;
+        const replyRate = step.sent > 0 ? Math.round((step.replied / step.sent) * 100) : 0;
+        
+        return `
+            <div class="sequence-step">
+                <div class="sequence-step-header">
+                    <div class="sequence-step-info">
+                        <div class="sequence-step-number">Step ${step.number} • ${step.channel}</div>
+                        <div class="sequence-step-title">${step.title}</div>
+                        <div class="sequence-step-timing">${step.timing}</div>
+                    </div>
+                    <div class="sequence-step-stats">
+                        <div class="step-stat">
+                            <div class="step-stat-value">${step.sent}</div>
+                            <div class="step-stat-label">Sent</div>
+                        </div>
+                        <div class="step-stat">
+                            <div class="step-stat-value">${openRate}%</div>
+                            <div class="step-stat-label">Opened</div>
+                        </div>
+                        <div class="step-stat">
+                            <div class="step-stat-value">${replyRate}%</div>
+                            <div class="step-stat-label">Replied</div>
+                        </div>
+                    </div>
+                </div>
+                ${step.subject ? `<div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;"><strong>Subject:</strong> ${escapeHtml(step.subject)}</div>` : ''}
+                <div class="sequence-step-content">${escapeHtml(step.content)}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderRecentActivity(activities) {
+    const container = document.getElementById('recentActivityList');
+    
+    if (!activities || activities.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No recent activity</p>';
+        return;
+    }
+    
+    const iconMap = {
+        sent: '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
+        opened: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+        replied: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>',
+        booked: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>'
+    };
+    
+    container.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+            <div class="activity-icon ${activity.type}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${iconMap[activity.type] || ''}
+                </svg>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-description">${escapeHtml(activity.description)}</div>
+                <div class="activity-time">${activity.time}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Export Outreach Report
+window.exportOutreachReport = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    showToast('Generating campaign report...', 'info');
+    
+    setTimeout(() => {
+        showToast('Report downloaded successfully!', 'success');
+        console.log('Export outreach report:', currentOutreachCampaignId);
+        // In production: generate PDF with full campaign details
+    }, 1500);
+};
+
+// Edit Outreach Campaign
+window.editOutreachCampaign = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    closeOutreachDetails();
+    showToast('Edit functionality - would open campaign builder', 'info');
+    console.log('Edit campaign:', currentOutreachCampaignId);
+    // In production: open campaign builder with pre-filled data
+};
+
+// Pause Campaign
+window.pauseOutreachCampaign = function(campaignId) {
+    const campaign = outreachCampaigns[campaignId];
+    if (!campaign) return;
+    
+    currentOutreachCampaignId = campaignId;
+    
+    // Update pause message
+    document.getElementById('pauseCampaignMessage').textContent = 
+        `This will stop all scheduled messages for "${campaign.name}". You can resume the campaign at any time.`;
+    
+    document.getElementById('pauseOutreachModal').classList.add('active');
+};
+
+window.closePauseOutreach = function() {
+    document.getElementById('pauseOutreachModal').classList.remove('active');
+    currentOutreachCampaignId = null;
+};
+
+window.confirmPauseOutreach = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    const campaign = outreachCampaigns[currentOutreachCampaignId];
+    if (campaign) {
+        campaign.status = 'paused';
+        showToast('Campaign paused successfully', 'success');
+        console.log('Paused campaign:', currentOutreachCampaignId);
+        
+        closePauseOutreach();
+        
+        // In production:
+        // POST /api/outreach-campaigns/:id/pause
+        // Then refresh the campaigns list
+    }
+};
+
+// Resume Campaign
+window.resumeOutreachCampaign = function(campaignId) {
+    const campaign = outreachCampaigns[campaignId];
+    if (!campaign) return;
+    
+    if (confirm(`Resume "${campaign.name}"? Scheduled messages will start sending again.`)) {
+        campaign.status = 'active';
+        showToast('Campaign resumed successfully', 'success');
+        console.log('Resumed campaign:', campaignId);
+        
+        // In production:
+        // POST /api/outreach-campaigns/:id/resume
+        // Then refresh the campaigns list
+    }
+};
+
+// Initialize Outreach Manager buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // View Details buttons would be added to campaign cards dynamically
+    // For now, they can be called directly: viewOutreachDetails(1)
+});
+
+// ===================================
+// ANALYTICS EXPORT FUNCTIONALITY
+// ===================================
+
+// Open Export Analytics Modal
+window.openExportAnalytics = function() {
+    document.getElementById('exportAnalyticsModal').classList.add('active');
+    updateReportPreview();
+};
+
+window.closeExportAnalytics = function() {
+    document.getElementById('exportAnalyticsModal').classList.remove('active');
+};
+
+// Initialize Export Analytics listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Date range radio buttons
+    const dateRangeInputs = document.querySelectorAll('input[name="dateRange"]');
+    dateRangeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customRange.style.display = 'block';
+                
+                // Set default dates
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - 30);
+                
+                document.getElementById('exportStartDate').value = startDate.toISOString().split('T')[0];
+                document.getElementById('exportEndDate').value = endDate.toISOString().split('T')[0];
+            } else {
+                customRange.style.display = 'none';
+            }
+            updateReportPreview();
+        });
+    });
+    
+    // Metrics checkboxes
+    const metricInputs = document.querySelectorAll('input[name="metric"]');
+    metricInputs.forEach(input => {
+        input.addEventListener('change', updateReportPreview);
+    });
+    
+    // Charts checkboxes
+    const chartInputs = document.querySelectorAll('input[name="chart"]');
+    chartInputs.forEach(input => {
+        input.addEventListener('change', updateReportPreview);
+    });
+    
+    // Format radio buttons
+    const formatInputs = document.querySelectorAll('input[name="format"]');
+    formatInputs.forEach(input => {
+        input.addEventListener('change', updateReportPreview);
+    });
+    
+    // Export Report button in Analytics page
+    const exportReportBtn = document.getElementById('exportReportBtn');
+    if (exportReportBtn) {
+        exportReportBtn.addEventListener('click', openExportAnalytics);
+    }
+});
+
+// Update Report Preview Text
+function updateReportPreview() {
+    const selectedDateRange = document.querySelector('input[name="dateRange"]:checked');
+    const selectedMetrics = Array.from(document.querySelectorAll('input[name="metric"]:checked'));
+    const selectedCharts = Array.from(document.querySelectorAll('input[name="chart"]:checked'));
+    const selectedFormat = document.querySelector('input[name="format"]:checked');
+    
+    if (!selectedDateRange || !selectedFormat) return;
+    
+    // Build preview text
+    let previewText = 'Your report will include ';
+    
+    // Date range
+    const dateRangeMap = {
+        'last7days': 'data from the last 7 days',
+        'last30days': 'data from the last 30 days',
+        'last90days': 'data from the last 90 days',
+        'thisMonth': 'data from this month',
+        'lastMonth': 'data from last month',
+        'custom': 'data from your custom date range'
+    };
+    previewText += dateRangeMap[selectedDateRange.value] + ' with ';
+    
+    // Metrics
+    if (selectedMetrics.length > 0) {
+        const metricNames = {
+            'overview': 'overview stats',
+            'campaigns': 'campaign performance',
+            'leads': 'lead pipeline',
+            'social': 'social media',
+            'content': 'content performance',
+            'roi': 'ROI analysis'
+        };
+        const metrics = selectedMetrics.map(m => metricNames[m.value]).join(', ');
+        previewText += metrics;
+    } else {
+        previewText += 'no metrics selected';
+    }
+    
+    // Charts
+    if (selectedCharts.length > 0) {
+        const chartNames = {
+            'trends': 'performance trends',
+            'funnel': 'conversion funnel',
+            'breakdown': 'channel breakdown',
+            'comparison': 'period comparison'
+        };
+        const charts = selectedCharts.map(c => chartNames[c.value]).join(', ');
+        previewText += ' with ' + charts + ' charts';
+    }
+    
+    // Format
+    const formatNames = {
+        'pdf': 'PDF',
+        'excel': 'Excel',
+        'csv': 'CSV',
+        'powerpoint': 'PowerPoint'
+    };
+    previewText += ' in ' + formatNames[selectedFormat.value] + ' format.';
+    
+    document.getElementById('reportPreviewText').textContent = previewText;
+}
+
+// Generate Analytics Report
+window.generateAnalyticsReport = function() {
+    const selectedDateRange = document.querySelector('input[name="dateRange"]:checked');
+    const selectedMetrics = Array.from(document.querySelectorAll('input[name="metric"]:checked'));
+    const selectedCharts = Array.from(document.querySelectorAll('input[name="chart"]:checked'));
+    const selectedFormat = document.querySelector('input[name="format"]:checked');
+    const selectedOptions = Array.from(document.querySelectorAll('input[name="option"]:checked'));
+    
+    // Validation
+    if (selectedMetrics.length === 0) {
+        showToast('Please select at least one metric to include', 'error');
+        return;
+    }
+    
+    // Build report config
+    const reportConfig = {
+        dateRange: selectedDateRange.value,
+        customDates: null,
+        metrics: selectedMetrics.map(m => m.value),
+        charts: selectedCharts.map(c => c.value),
+        format: selectedFormat.value,
+        options: selectedOptions.map(o => o.value)
+    };
+    
+    // Get custom dates if selected
+    if (selectedDateRange.value === 'custom') {
+        const startDate = document.getElementById('exportStartDate').value;
+        const endDate = document.getElementById('exportEndDate').value;
+        
+        if (!startDate || !endDate) {
+            showToast('Please select custom date range', 'error');
+            return;
+        }
+        
+        reportConfig.customDates = { startDate, endDate };
+    }
+    
+    // Show generation progress
+    closeExportAnalytics();
+    showToast('Generating your analytics report...', 'info');
+    
+    // Simulate report generation
+    setTimeout(() => {
+        showToast('Report generated successfully!', 'success');
+        console.log('Generated report:', reportConfig);
+        
+        // In production:
+        // POST /api/analytics/export
+        // { ...reportConfig }
+        // Returns: { downloadUrl, filename }
+        // Then: window.location.href = downloadUrl
+        
+        // Simulate download
+        const formatExtensions = {
+            'pdf': '.pdf',
+            'excel': '.xlsx',
+            'csv': '.csv',
+            'powerpoint': '.pptx'
+        };
+        
+        const filename = `analytics-report-${new Date().toISOString().split('T')[0]}${formatExtensions[reportConfig.format]}`;
+        console.log('Download:', filename);
+        
+        // Show success with file details
+        showToast(`📥 Downloading ${filename}`, 'success');
+    }, 2500);
+};
+
+// Helper: Get Date Range Label
+function getDateRangeLabel(range, customDates) {
+    if (range === 'custom' && customDates) {
+        return `${customDates.startDate} to ${customDates.endDate}`;
+    }
+    
+    const labels = {
+        'last7days': 'Last 7 Days',
+        'last30days': 'Last 30 Days',
+        'last90days': 'Last 90 Days',
+        'thisMonth': 'This Month',
+        'lastMonth': 'Last Month'
+    };
+    
+    return labels[range] || range;
+}
+
+// Helper: Get Metrics Summary
+function getMetricsSummary(metrics) {
+    const names = {
+        'overview': 'Overview',
+        'campaigns': 'Campaigns',
+        'leads': 'Leads',
+        'social': 'Social',
+        'content': 'Content',
+        'roi': 'ROI'
+    };
+    
+    return metrics.map(m => names[m] || m).join(', ');
+}
+
+// Update campaign data to match card IDs
+// Updating existing campaigns data with proper IDs
+outreachCampaigns[2] = {
+    id: 2,
+    name: 'Client Reactivation',
+    targetAudience: 'Inactive Clients',
+    totalRecipients: 200,
+    sequenceSteps: 3,
+    channel: 'Email',
+    status: 'active',
+    sent: 156,
+    opened: 31,
+    replied: 8,
+    booked: 5,
+    startedAt: '2024-11-28T10:00:00',
+    steps: [
+        {
+            number: 1,
+            title: 'Re-engagement Email',
+            timing: 'Day 1',
+            channel: 'Email',
+            sent: 156,
+            opened: 31,
+            replied: 5,
+            subject: 'We miss you! Here\'s what we\'ve been up to',
+            content: 'Hi {{first_name}},\n\nIt\'s been a while since we last connected.\n\nWe\'ve made some exciting improvements to our platform:\n• New automation features\n• Enhanced analytics\n• Faster processing\n\nWould love to catch up and show you what\'s new.\n\nBest,\nToni'
+        },
+        {
+            number: 2,
+            title: 'Value Reminder',
+            timing: 'Day 5',
+            channel: 'Email',
+            sent: 78,
+            opened: 19,
+            replied: 2,
+            subject: 'Quick reminder: Your account benefits',
+            content: 'Hi {{first_name}},\n\nJust a friendly reminder of what you\'re missing:\n✓ Unlimited campaigns\n✓ Advanced targeting\n✓ Priority support\n\nReady to jump back in?\n\nBest,\nToni'
+        },
+        {
+            number: 3,
+            title: 'Special Offer',
+            timing: 'Day 10',
+            channel: 'Email',
+            sent: 45,
+            opened: 12,
+            replied: 1,
+            subject: 'Exclusive: 20% off for returning clients',
+            content: 'Hi {{first_name}},\n\nWe\'d love to have you back.\n\nExclusive offer: 20% off for the next 3 months.\n\nUse code WELCOME20 at checkout.\n\nOffer expires in 48 hours.\n\nBest,\nToni'
+        }
+    ],
+    recentActivity: [
+        {
+            type: 'replied',
+            title: 'Positive Response',
+            description: 'David Johnson replied: "Interested in the offer"',
+            time: '3 hours ago'
+        },
+        {
+            type: 'opened',
+            title: 'Email Opened',
+            description: '12 recipients opened Step 3 email',
+            time: '5 hours ago'
+        },
+        {
+            type: 'sent',
+            title: 'Step Sent',
+            description: 'Step 3 sent to 45 recipients',
+            time: '1 day ago'
+        }
+    ]
+};
+
+outreachCampaigns[3] = {
+    id: 3,
+    name: 'Product Launch Announcement',
+    targetAudience: 'Existing Customers',
+    totalRecipients: 2000,
+    sequenceSteps: 4,
+    channel: 'LinkedIn + Email',
+    status: 'paused',
+    sent: 844,
+    opened: 152,
+    replied: 39,
+    booked: 24,
+    startedAt: '2024-11-15T09:00:00',
+    steps: [
+        {
+            number: 1,
+            title: 'Teaser Announcement',
+            timing: 'Day 1',
+            channel: 'Email',
+            sent: 844,
+            opened: 152,
+            replied: 15,
+            subject: '🚀 Something big is coming...',
+            content: 'Hi {{first_name}},\n\nWe\'ve been working on something special.\n\nA game-changing feature that will transform how you work.\n\nStay tuned for the big reveal next week!\n\nBest,\nToni'
+        },
+        {
+            number: 2,
+            title: 'LinkedIn Post Share',
+            timing: 'Day 3',
+            channel: 'LinkedIn',
+            sent: 500,
+            opened: 89,
+            replied: 12,
+            content: 'The wait is almost over! Our biggest product update is launching Monday. Here\'s a sneak peek... 👀'
+        },
+        {
+            number: 3,
+            title: 'Launch Day Email',
+            timing: 'Day 7',
+            channel: 'Email',
+            sent: 0,
+            opened: 0,
+            replied: 0,
+            subject: '🎉 It\'s here! Introducing [Feature Name]',
+            content: 'Hi {{first_name}},\n\nToday we\'re launching [Feature Name].\n\nThis will help you:\n• Save 10+ hours per week\n• Automate complex workflows\n• Scale without limits\n\nGet started now: [Link]\n\nBest,\nToni'
+        },
+        {
+            number: 4,
+            title: 'Follow-up',
+            timing: 'Day 14',
+            channel: 'Email',
+            sent: 0,
+            opened: 0,
+            replied: 0,
+            subject: 'Have you tried [Feature Name] yet?',
+            content: 'Hi {{first_name}},\n\nJust checking in - have you had a chance to try the new feature?\n\nNeed help getting started? Book a demo call.\n\nBest,\nToni'
+        }
+    ],
+    recentActivity: [
+        {
+            type: 'booked',
+            title: 'Demo Booked',
+            description: 'Robert Martinez booked product demo',
+            time: '1 day ago'
+        },
+        {
+            type: 'replied',
+            title: 'Feature Request',
+            description: 'Lisa Anderson replied with feedback',
+            time: '2 days ago'
+        },
+        {
+            type: 'opened',
+            title: 'High Engagement',
+            description: '89 recipients opened LinkedIn message',
+            time: '3 days ago'
+        }
+    ]
+};
+
+// ===================================
+// OUTREACH EDIT & EXPORT FUNCTIONALITY
+// ===================================
+
+// Edit Outreach Campaign
+window.editOutreachCampaign = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    const campaign = outreachCampaigns[currentOutreachCampaignId];
+    if (!campaign) return;
+    
+    // Close details modal
+    closeOutreachDetails();
+    
+    // Populate edit form
+    document.getElementById('editOutreachName').value = campaign.name;
+    document.getElementById('editOutreachAudience').value = campaign.targetAudience;
+    document.getElementById('editOutreachRecipients').value = campaign.totalRecipients;
+    document.getElementById('editDailyLimit').value = '50';
+    document.getElementById('editSendingSchedule').value = 'business-hours';
+    
+    // Load sequence steps
+    loadSequenceSteps(campaign.steps || []);
+    
+    // Open edit modal
+    document.getElementById('editOutreachCampaignModal').classList.add('active');
+};
+
+window.closeEditOutreachCampaign = function() {
+    document.getElementById('editOutreachCampaignModal').classList.remove('active');
+};
+
+function loadSequenceSteps(steps) {
+    const container = document.getElementById('editSequenceSteps');
+    
+    if (!steps || steps.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No steps configured. Click "Add Step" to create your sequence.</p>';
+        return;
+    }
+    
+    container.innerHTML = steps.map((step, index) => `
+        <div class="sequence-step-editor" data-step="${index}">
+            <div class="sequence-step-editor-header">
+                <div class="step-editor-title">Step ${step.number}: ${step.title}</div>
+                <button class="step-editor-remove" onclick="removeSequenceStep(${index})">Remove</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Step Title</label>
+                <input type="text" class="form-input" value="${escapeHtml(step.title)}" data-field="title">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Timing</label>
+                    <input type="text" class="form-input" value="${escapeHtml(step.timing)}" data-field="timing" placeholder="Day 1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Channel</label>
+                    <select class="form-input" data-field="channel">
+                        <option value="email" ${step.channel === 'Email' ? 'selected' : ''}>Email</option>
+                        <option value="linkedin" ${step.channel === 'LinkedIn' ? 'selected' : ''}>LinkedIn</option>
+                        <option value="phone" ${step.channel === 'Phone' ? 'selected' : ''}>Phone</option>
+                    </select>
+                </div>
+            </div>
+            ${step.subject ? `
+            <div class="form-group">
+                <label class="form-label">Subject Line</label>
+                <input type="text" class="form-input" value="${escapeHtml(step.subject)}" data-field="subject">
+            </div>
+            ` : ''}
+            <div class="form-group">
+                <label class="form-label">Message Content</label>
+                <textarea class="form-textarea" rows="6" data-field="content">${escapeHtml(step.content)}</textarea>
+            </div>
+        </div>
+    `).join('');
+}
+
+window.addSequenceStep = function() {
+    const container = document.getElementById('editSequenceSteps');
+    const currentSteps = container.querySelectorAll('.sequence-step-editor').length;
+    const stepNumber = currentSteps + 1;
+    
+    const newStep = `
+        <div class="sequence-step-editor" data-step="${currentSteps}">
+            <div class="sequence-step-editor-header">
+                <div class="step-editor-title">Step ${stepNumber}: New Step</div>
+                <button class="step-editor-remove" onclick="removeSequenceStep(${currentSteps})">Remove</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Step Title</label>
+                <input type="text" class="form-input" value="New Step" data-field="title">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Timing</label>
+                    <input type="text" class="form-input" value="Day ${stepNumber}" data-field="timing" placeholder="Day 1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Channel</label>
+                    <select class="form-input" data-field="channel">
+                        <option value="email">Email</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="phone">Phone</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject Line</label>
+                <input type="text" class="form-input" data-field="subject" placeholder="Email subject...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message Content</label>
+                <textarea class="form-textarea" rows="6" data-field="content" placeholder="Hi {{first_name}},
+
+Your message here...
+
+Best,
+Toni"></textarea>
+            </div>
+        </div>
+    `;
+    
+    // Remove empty message if exists
+    const emptyMessage = container.querySelector('p');
+    if (emptyMessage) {
+        container.innerHTML = '';
+    }
+    
+    container.insertAdjacentHTML('beforeend', newStep);
+};
+
+window.removeSequenceStep = function(index) {
+    if (!confirm('Remove this step from the sequence?')) return;
+    
+    const container = document.getElementById('editSequenceSteps');
+    const step = container.querySelector(`[data-step="${index}"]`);
+    
+    if (step) {
+        step.remove();
+        
+        // Check if no steps left
+        if (container.querySelectorAll('.sequence-step-editor').length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No steps configured. Click "Add Step" to create your sequence.</p>';
+        }
+    }
+};
+
+window.saveOutreachCampaignEdit = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    const campaign = outreachCampaigns[currentOutreachCampaignId];
+    if (!campaign) return;
+    
+    // Get form values
+    campaign.name = document.getElementById('editOutreachName').value;
+    campaign.targetAudience = document.getElementById('editOutreachAudience').value;
+    campaign.totalRecipients = parseInt(document.getElementById('editOutreachRecipients').value);
+    
+    // Get sequence steps
+    const stepEditors = document.querySelectorAll('.sequence-step-editor');
+    const updatedSteps = Array.from(stepEditors).map((editor, index) => {
+        return {
+            number: index + 1,
+            title: editor.querySelector('[data-field="title"]').value,
+            timing: editor.querySelector('[data-field="timing"]').value,
+            channel: editor.querySelector('[data-field="channel"]').value,
+            subject: editor.querySelector('[data-field="subject"]')?.value || '',
+            content: editor.querySelector('[data-field="content"]').value,
+            sent: campaign.steps[index]?.sent || 0,
+            opened: campaign.steps[index]?.opened || 0,
+            replied: campaign.steps[index]?.replied || 0
+        };
+    });
+    
+    campaign.steps = updatedSteps;
+    campaign.sequenceSteps = updatedSteps.length;
+    
+    showToast('Campaign updated successfully!', 'success');
+    console.log('Updated campaign:', campaign);
+    
+    closeEditOutreachCampaign();
+    
+    // In production:
+    // PATCH /api/outreach-campaigns/:id
+    // { name, targetAudience, totalRecipients, steps, settings }
+};
+
+// Export Outreach Report
+window.exportOutreachReport = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    const campaign = outreachCampaigns[currentOutreachCampaignId];
+    if (!campaign) return;
+    
+    // Close details modal
+    closeOutreachDetails();
+    
+    // Populate export modal
+    document.getElementById('exportOutreachCampaignName').textContent = campaign.name;
+    
+    const openRate = campaign.sent > 0 ? Math.round((campaign.opened / campaign.sent) * 100) : 0;
+    const replyRate = campaign.sent > 0 ? Math.round((campaign.replied / campaign.sent) * 100) : 0;
+    
+    document.getElementById('exportOutreachCampaignStats').textContent = 
+        `${campaign.sent} sent • ${openRate}% opened • ${replyRate}% replied • ${campaign.booked} meetings booked`;
+    
+    // Open export modal
+    document.getElementById('exportOutreachReportModal').classList.add('active');
+};
+
+window.closeExportOutreachReport = function() {
+    document.getElementById('exportOutreachReportModal').classList.remove('active');
+};
+
+window.generateOutreachReport = function() {
+    if (!currentOutreachCampaignId) return;
+    
+    const campaign = outreachCampaigns[currentOutreachCampaignId];
+    if (!campaign) return;
+    
+    // Get selected sections
+    const selectedSections = Array.from(document.querySelectorAll('input[name="outreach-section"]:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedSections.length === 0) {
+        showToast('Please select at least one section to include', 'error');
+        return;
+    }
+    
+    // Get selected format
+    const selectedFormat = document.querySelector('input[name="outreach-format"]:checked').value;
+    
+    // Get options
+    const selectedOptions = Array.from(document.querySelectorAll('input[name="outreach-option"]:checked'))
+        .map(cb => cb.value);
+    
+    // Build report config
+    const reportConfig = {
+        campaignId: currentOutreachCampaignId,
+        campaignName: campaign.name,
+        sections: selectedSections,
+        format: selectedFormat,
+        options: selectedOptions
+    };
+    
+    closeExportOutreachReport();
+    showToast('Generating campaign report...', 'info');
+    
+    setTimeout(() => {
+        const formatExtensions = {
+            'pdf': '.pdf',
+            'excel': '.xlsx',
+            'csv': '.csv'
+        };
+        
+        const safeName = campaign.name.toLowerCase().replace(/\s+/g, '-');
+        const filename = `${safeName}-report-${new Date().toISOString().split('T')[0]}${formatExtensions[selectedFormat]}`;
+        
+        showToast(`Report generated successfully!`, 'success');
+        console.log('Generated report:', reportConfig);
+        console.log('Download:', filename);
+        
+        // Show download notification
+        setTimeout(() => {
+            showToast(`📥 Downloading ${filename}`, 'success');
+        }, 500);
+        
+        // In production:
+        // POST /api/outreach-campaigns/:id/export
+        // { sections, format, options }
+        // Returns: { downloadUrl, filename }
+    }, 2000);
+};
+
+// ===================================
+// EMAIL TEMPLATES & NEW CAMPAIGN
+// ===================================
+
+// Template Data
+const emailTemplates = [
+    {
+        id: 1,
+        name: 'Welcome Email',
+        category: 'welcome',
+        description: 'Perfect first impression for new subscribers',
+        uses: 1247,
+        subject: 'Welcome to {{company_name}}!',
+        content: `Hi {{first_name}},
+
+Welcome to {{company_name}}! We're thrilled to have you here.
+
+Here's what you can expect:
+• Weekly tips and insights
+• Exclusive offers
+• Product updates
+
+Get started by exploring our platform.
+
+Best regards,
+The {{company_name}} Team`
+    },
+    {
+        id: 2,
+        name: 'Product Launch',
+        category: 'promotional',
+        description: 'Announce new products with excitement',
+        uses: 892,
+        subject: '🚀 Introducing Our Latest Innovation',
+        content: `Hi {{first_name}},
+
+We're excited to announce our newest product!
+
+{{product_name}} is here to transform the way you work.
+
+Key features:
+• Feature 1
+• Feature 2
+• Feature 3
+
+Get started today: {{product_link}}
+
+Best,
+{{company_name}}`
+    },
+    {
+        id: 3,
+        name: 'Weekly Newsletter',
+        category: 'newsletter',
+        description: 'Keep subscribers engaged weekly',
+        uses: 2341,
+        subject: '📰 This Week\'s Top Stories',
+        content: `Hi {{first_name}},
+
+Here's what happened this week at {{company_name}}:
+
+1. Story Headline One
+   Brief description...
+
+2. Story Headline Two
+   Brief description...
+
+3. Story Headline Three
+   Brief description...
+
+See you next week!
+{{company_name}}`
+    },
+    {
+        id: 4,
+        name: 'Event Invitation',
+        category: 'promotional',
+        description: 'Drive registrations for events',
+        uses: 567,
+        subject: 'You\'re Invited: {{event_name}}',
+        content: `Hi {{first_name}},
+
+You're invited to join us for {{event_name}}!
+
+When: {{event_date}}
+Where: {{event_location}}
+
+This exclusive event will feature:
+• Keynote speakers
+• Networking opportunities
+• Live demos
+
+Reserve your spot: {{registration_link}}
+
+Hope to see you there!
+{{company_name}}`
+    },
+    {
+        id: 5,
+        name: 'Holiday Sale',
+        category: 'promotional',
+        description: 'Boost sales during holidays',
+        uses: 1456,
+        subject: '🎄 Holiday Sale: Up to 50% Off!',
+        content: `Hi {{first_name}},
+
+Our biggest sale of the year is here!
+
+Save up to 50% on everything.
+
+Use code: HOLIDAY50
+
+Sale ends {{sale_end_date}}
+
+Shop now: {{shop_link}}
+
+Happy holidays!
+{{company_name}}`
+    },
+    {
+        id: 6,
+        name: 'Order Confirmation',
+        category: 'transactional',
+        description: 'Confirm customer orders',
+        uses: 3421,
+        subject: 'Order Confirmation #{{order_number}}',
+        content: `Hi {{first_name}},
+
+Thank you for your order!
+
+Order #{{order_number}}
+Total: {{order_total}}
+
+Your order is being processed and will ship soon.
+
+Track your order: {{tracking_link}}
+
+Thanks,
+{{company_name}}`
+    },
+    {
+        id: 7,
+        name: 'Re-engagement',
+        category: 'welcome',
+        description: 'Win back inactive subscribers',
+        uses: 734,
+        subject: 'We Miss You! Come Back for 20% Off',
+        content: `Hi {{first_name}},
+
+We noticed you haven't visited in a while.
+
+We'd love to have you back!
+
+Here's 20% off your next purchase:
+Code: COMEBACK20
+
+Valid for 7 days.
+
+{{shop_link}}
+
+Best,
+{{company_name}}`
+    },
+    {
+        id: 8,
+        name: 'Monthly Report',
+        category: 'newsletter',
+        description: 'Share monthly performance updates',
+        uses: 456,
+        subject: '📊 Your Monthly Report - {{month}}',
+        content: `Hi {{first_name}},
+
+Here's your monthly summary for {{month}}:
+
+Key Metrics:
+• Metric 1: {{value_1}}
+• Metric 2: {{value_2}}
+• Metric 3: {{value_3}}
+
+View full report: {{report_link}}
+
+Keep up the great work!
+{{company_name}}`
+    }
+];
+
+// Open Template Library
+window.openTemplateLibrary = function() {
+    renderTemplates('all');
+    document.getElementById('templateLibraryModal').classList.add('active');
+};
+
+window.closeTemplateLibrary = function() {
+    document.getElementById('templateLibraryModal').classList.remove('active');
+};
+
+// Render Templates
+function renderTemplates(category) {
+    const grid = document.getElementById('templatesGrid');
+    const filtered = category === 'all' 
+        ? emailTemplates 
+        : emailTemplates.filter(t => t.category === category);
+    
+    grid.innerHTML = filtered.map(template => `
+        <div class="template-card" onclick="useTemplate(${template.id})">
+            <div class="template-preview">
+                <div class="template-preview-icon">📧</div>
+                <div class="template-badge">${getCategoryName(template.category)}</div>
+            </div>
+            <div class="template-info">
+                <div class="template-name">${template.name}</div>
+                <div class="template-description">${template.description}</div>
+                <div class="template-meta">
+                    <div class="template-uses">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        ${template.uses} uses
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getCategoryName(category) {
+    const names = {
+        'welcome': 'Welcome',
+        'promotional': 'Promo',
+        'newsletter': 'Newsletter',
+        'transactional': 'Transactional'
+    };
+    return names[category] || category;
+}
+
+// Use Template
+window.useTemplate = function(templateId) {
+    const template = emailTemplates.find(t => t.id === templateId);
+    if (!template) return;
+    
+    closeTemplateLibrary();
+    openNewCampaignEmail();
+    
+    // Pre-fill with template
+    document.querySelector('input[name="contentType"][value="template"]').checked = true;
+    document.getElementById('selectedTemplate').value = templateId;
+    document.getElementById('newCampaignSubject').value = template.subject;
+    
+    showToast(`Template "${template.name}" loaded!`, 'success');
+};
+
+// Initialize Template Category Buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const templateLibraryBtn = document.getElementById('templateLibraryBtn');
+    if (templateLibraryBtn) {
+        templateLibraryBtn.addEventListener('click', openTemplateLibrary);
+    }
+    
+    const createCampaignEmailBtn = document.getElementById('createCampaignEmailBtn');
+    if (createCampaignEmailBtn) {
+        createCampaignEmailBtn.addEventListener('click', openNewCampaignEmail);
+    }
+    
+    // Template category buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('template-category-btn')) {
+            document.querySelectorAll('.template-category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+            renderTemplates(e.target.dataset.category);
+        }
+    });
+});
+
+// Open New Campaign Modal
+window.openNewCampaignEmail = function() {
+    // Set default date/time for scheduling
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('newCampaignDate').value = tomorrow.toISOString().split('T')[0];
+    document.getElementById('newCampaignTime').value = '10:00';
+    
+    document.getElementById('newCampaignEmailModal').classList.add('active');
+};
+
+window.closeNewCampaignEmail = function() {
+    document.getElementById('newCampaignEmailModal').classList.remove('active');
+    // Reset form
+    document.getElementById('newCampaignName').value = '';
+    document.getElementById('newCampaignSubject').value = '';
+    document.getElementById('newCampaignPreview').value = '';
+    document.getElementById('selectedTemplate').value = '';
+    document.getElementById('newCampaignContent').value = '';
+    document.getElementById('newCampaignRecipients').value = '';
+};
+
+// Content Type Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTypeInputs = document.querySelectorAll('input[name="contentType"]');
+    contentTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value === 'template') {
+                document.getElementById('templateSelection').style.display = 'block';
+                document.getElementById('customContent').style.display = 'none';
+            } else {
+                document.getElementById('templateSelection').style.display = 'none';
+                document.getElementById('customContent').style.display = 'block';
+            }
+        });
+    });
+    
+    // Schedule Type Toggle
+    const scheduleTypeInputs = document.querySelectorAll('input[name="scheduleType"]');
+    scheduleTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value === 'later') {
+                document.getElementById('scheduleDateTime').style.display = 'block';
+            } else {
+                document.getElementById('scheduleDateTime').style.display = 'none';
+            }
+        });
+    });
+});
+
+// Save Campaign as Draft
+window.saveCampaignDraft = function() {
+    const name = document.getElementById('newCampaignName').value.trim();
+    
+    if (!name) {
+        showToast('Please enter a campaign name', 'error');
+        return;
+    }
+    
+    const campaignData = {
+        name,
+        subject: document.getElementById('newCampaignSubject').value,
+        preview: document.getElementById('newCampaignPreview').value,
+        contentType: document.querySelector('input[name="contentType"]:checked').value,
+        template: document.getElementById('selectedTemplate').value,
+        customContent: document.getElementById('newCampaignContent').value,
+        recipients: document.getElementById('newCampaignRecipients').value,
+        status: 'draft'
+    };
+    
+    showToast('Campaign saved as draft!', 'success');
+    console.log('Draft campaign:', campaignData);
+    closeNewCampaignEmail();
+    
+    // In production:
+    // POST /api/email-campaigns
+    // { ...campaignData, status: 'draft' }
+};
+
+// Create Email Campaign
+window.createEmailCampaign = function() {
+    const name = document.getElementById('newCampaignName').value.trim();
+    const subject = document.getElementById('newCampaignSubject').value.trim();
+    const recipients = document.getElementById('newCampaignRecipients').value;
+    
+    // Validation
+    if (!name) {
+        showToast('Please enter a campaign name', 'error');
+        return;
+    }
+    
+    if (!subject) {
+        showToast('Please enter a subject line', 'error');
+        return;
+    }
+    
+    if (!recipients) {
+        showToast('Please select recipients', 'error');
+        return;
+    }
+    
+    const scheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+    const contentType = document.querySelector('input[name="contentType"]:checked').value;
+    
+    const campaignData = {
+        name,
+        subject,
+        preview: document.getElementById('newCampaignPreview').value,
+        contentType,
+        template: document.getElementById('selectedTemplate').value,
+        customContent: document.getElementById('newCampaignContent').value,
+        recipients,
+        scheduleType,
+        scheduledFor: scheduleType === 'later' 
+            ? `${document.getElementById('newCampaignDate').value}T${document.getElementById('newCampaignTime').value}:00`
+            : null,
+        trackOpens: document.getElementById('trackOpens').checked,
+        trackClicks: document.getElementById('trackClicks').checked,
+        includeUnsubscribe: document.getElementById('enableUnsubscribe').checked,
+        status: scheduleType === 'now' ? 'active' : 'scheduled',
+        createdAt: new Date().toISOString()
+    };
+    
+    closeNewCampaignEmail();
+    
+    if (scheduleType === 'now') {
+        showToast('Campaign created and sending now!', 'success');
+    } else {
+        showToast('Campaign scheduled successfully!', 'success');
+    }
+    
+    console.log('Created campaign:', campaignData);
+    
+    // In production:
+    // POST /api/email-campaigns
+    // { ...campaignData }
+    // Then refresh campaigns list
+};
+
+// ===================================
+// ENHANCED TRACKING OPTIONS INTERACTIVITY
+// ===================================
+
+// Add real-time feedback for tracking options
+document.addEventListener('DOMContentLoaded', function() {
+    // Track Opens Checkbox
+    const trackOpensCheckbox = document.getElementById('trackOpens');
+    if (trackOpensCheckbox) {
+        trackOpensCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                showToast('✓ Email opens will be tracked', 'success');
+                console.log('Tracking enabled: Email Opens');
+            } else {
+                showToast('Email opens tracking disabled', 'info');
+                console.log('Tracking disabled: Email Opens');
+            }
+        });
+    }
+    
+    // Track Clicks Checkbox
+    const trackClicksCheckbox = document.getElementById('trackClicks');
+    if (trackClicksCheckbox) {
+        trackClicksCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                showToast('✓ Link clicks will be tracked', 'success');
+                console.log('Tracking enabled: Link Clicks');
+            } else {
+                showToast('Link clicks tracking disabled', 'info');
+                console.log('Tracking disabled: Link Clicks');
+            }
+        });
+    }
+    
+    // Unsubscribe Link Checkbox
+    const unsubscribeCheckbox = document.getElementById('enableUnsubscribe');
+    if (unsubscribeCheckbox) {
+        unsubscribeCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                showToast('✓ Unsubscribe link will be included', 'success');
+                console.log('Unsubscribe link: Enabled');
+            } else {
+                showToast('⚠️ Warning: Unsubscribe link removed (may violate regulations)', 'error');
+                console.log('Unsubscribe link: Disabled');
+            }
+        });
+    }
+});
+
+// Show tracking summary before creating campaign
+window.showTrackingSummary = function() {
+    const trackOpens = document.getElementById('trackOpens').checked;
+    const trackClicks = document.getElementById('trackClicks').checked;
+    const includeUnsubscribe = document.getElementById('enableUnsubscribe').checked;
+    
+    const enabledFeatures = [];
+    if (trackOpens) enabledFeatures.push('Email Opens');
+    if (trackClicks) enabledFeatures.push('Link Clicks');
+    if (includeUnsubscribe) enabledFeatures.push('Unsubscribe Link');
+    
+    if (enabledFeatures.length > 0) {
+        console.log('Enabled tracking features:', enabledFeatures.join(', '));
+    } else {
+        console.log('No tracking features enabled');
+    }
+    
+    return {
+        trackOpens,
+        trackClicks,
+        includeUnsubscribe,
+        summary: enabledFeatures.join(', ')
+    };
+};
+
+// Update createEmailCampaign to show tracking summary
+const originalCreateEmailCampaign = window.createEmailCampaign;
+window.createEmailCampaign = function() {
+    // Show tracking summary
+    const trackingInfo = showTrackingSummary();
+    
+    // Continue with original function
+    return originalCreateEmailCampaign();
+};
